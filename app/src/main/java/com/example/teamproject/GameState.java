@@ -5,6 +5,11 @@ import java.util.Random;
 
 /**
  * GameState Class keeps track of the current state of the TDA game
+ *
+ * @author Trystan Wong
+ * @author Kawika Suzuki
+ * @author Mohammad Surur
+ * @author Marcus Rison
  */
 public class GameState {
 
@@ -59,8 +64,8 @@ public class GameState {
     private int player4Hoard;
 
     /**
-     *  Constructor for the GameState at the beginning of the game
-     * @param initDeck
+     * Constructor for the GameState at the beginning of the game
+     * @param initDeck - deck of all Card objects found in the game
      */
     public GameState(ArrayList<Card> initDeck){
 
@@ -76,9 +81,9 @@ public class GameState {
         }
 
         //there is no current player or round leader in the beginning phase of the game
-        //its decided in the ante phase
-        currentPlayer = -1;
-        roundLeader = -1;
+        //its decided in the ante phase but it'll default to player1
+        currentPlayer = 0;
+        roundLeader = 0;
 
         //70 playable cards
         numCardsInDeck = 36;
@@ -94,6 +99,7 @@ public class GameState {
         flight2 = new ArrayList<>();
         flight3 = new ArrayList<>();
         flight4 = new ArrayList<>();
+
         player1Hand = new ArrayList<>();
         player2Hand = new ArrayList<>();
         player3Hand = new ArrayList<>();
@@ -210,6 +216,12 @@ public class GameState {
     }
 
     /**
+     *
+     * toString method builds a String containing all of the information needed in the current
+     * state of the game (all instance variables).
+     *
+     * @return String that will be printed
+     *
      External Citation
      Date: 22 February 2022
      Problem: Did not know the most efficient way to add all elements of an array onto
@@ -222,11 +234,33 @@ public class GameState {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append("----------------------------------\n");
-        sb.append("Current Phase: "+gamePhase+"\n");
-        sb.append("Current Round: " + round+"\n");
-        sb.append("Current Stakes: " + currentStakes + "\n");
-        sb.append("Total Gambits: " + gambit +"\n");
+        //string version of the gamephase to be printed
+        String gp = "";
+        switch(gamePhase){
+            case BEGIN_GAME:
+                gp = "The game has just begun";
+                break;
+            case ANTE:
+                gp = "We are currently in the Ante phase.";
+                break;
+            case ROUND:
+                gp = "We are in the middle of a round";
+                break;
+            case CHOICE:
+                gp = "A player is currently making a choice.";
+                break;
+            case END_GAMBIT:
+                gp = "A Gambit has just ended.";
+                break;
+            case FORFEIT:
+                gp = "The game has ended.";
+                break;
+            default:
+                gp = "no info on the current phase of the game";
+                break;
+        }
+
+        //printing all player id's (useful for reading who the current player and round leader is
         sb.append("----------------------------------\n");
         sb.append("All Player ID's:\n");
         for(int i = 0; i < numPlayers; i++)
@@ -234,9 +268,18 @@ public class GameState {
             sb.append("Player "+(i+1)+": " + id[i]);
             sb.append("\n");
         }
+
+        //printing out various info about the current round and gambit
         sb.append("----------------------------------\n");
+        sb.append("Current Phase: "+gp+"\n");
+        sb.append("Current Round: " + round+"\n");
+        sb.append("ID of Current Player: " + currentPlayer+"\n");
+        sb.append("ID of Current Round Leader: " + roundLeader+"\n");
+        sb.append("Current Stakes: " + currentStakes + "\n");
+        sb.append("Total Gambits: " + gambit +"\n");
 
         //printing each resources for player1
+        sb.append("----------------------------------\n");
         sb.append("PLAYER 1:\n");
         sb.append("Hoard: " + player1Hoard + "\n");
         sb.append("Hand: \n");

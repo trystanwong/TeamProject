@@ -3,7 +3,12 @@ package com.example.teamproject;
 /**
  * Card
  *
- * representation of what a specific card is within the game
+ * Representation of what a specific card is within the game
+ *
+ * @author Trystan Wong
+ * @author Kawika Suzuki
+ * @author Mohammad Surur
+ * @author Marcus Rison
  */
 public class Card {
 
