@@ -14,9 +14,11 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ArrayList<Card> cards = new ArrayList<>();
-        for(int i = 0; i < 24; i++){
+        for(int i = 0; i < 36; i++){
             cards.add(new Card("Red Dragon",i));
         }
+
+
 
 
         GameState gs = new GameState(cards);
