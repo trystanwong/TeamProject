@@ -3,14 +3,21 @@ package com.example.teamproject;
 import java.util.ArrayList;
 import java.util.Random;
 
+/**
+ * GameState Class keeps track of the current state of the TDA game
+ */
 public class GameState {
 
+    //Instance Variables
 
     //private Player[] players; //all players
     private int numPlayers;
-    private String[] id; //id of each player (placeholder for subclass of Player)
-    private String currentPlayer; //id of the player who's turn it is
-    private String roundLeader; //id of the current round leader
+    private int[] id; //id of each player (placeholder for subclass of Player)
+
+    private int round; //current round in gambit (resets to 1 after gambit ends)
+    private int gambit; //number of gambits that have occurred
+    private int currentPlayer; //id of the player who's turn it is
+    private int roundLeader; //id of the current round leader
     private int gamePhase; //what phase of the game we are in
 
     //constants for different phases of the game in gamePhase
@@ -19,11 +26,12 @@ public class GameState {
     private static final int ROUND = 2;
     private static final int CHOICE = 3;
     private static final int END_GAMBIT = 4;
+    private static final int FORFEIT = 5;
 
     private int numCardsInDeck; //cards remaining in the deck
-    private int numCardsOnBoard;
+    private int numCardsOnBoard; //number cards that are not in the deck
 
-    private ArrayList<Card> boardCards; //all the cards that are visible to all players
+    private ArrayList<Card> boardCards; //all the cards that have been removed from the deck
     private ArrayList<Card> deck; //current stack of deck
 
     //all player flights
@@ -43,7 +51,7 @@ public class GameState {
     private ArrayList<Card> player3Hand;
     private ArrayList<Card> player4Hand;
 
-    //all player hoards and current stakes for the round
+    //all player hoards and current stakes for the current gambit
     private int currentStakes;
     private int player1Hoard;
     private int player2Hoard;
@@ -56,18 +64,24 @@ public class GameState {
      */
     public GameState(ArrayList<Card> initDeck){
 
-        gamePhase = BEGIN_GAME;
         numPlayers = 4;
-        id = new String[numPlayers];
+        gamePhase = BEGIN_GAME;
+        round = 1;
+        gambit = 0;
+
+        //setting up the id of each player (placeholder for player class)
+        id = new int[numPlayers];
         for(int i = 0; i<numPlayers; i++){
-            id[i] = "000"+i;
+            id[i] = i;
         }
 
         //there is no current player or round leader in the beginning phase of the game
-        currentPlayer = null;
-        roundLeader = null;
+        //its decided in the ante phase
+        currentPlayer = -1;
+        roundLeader = -1;
 
-        numCardsInDeck = 24; //70 playable cards in the deck
+        //70 playable cards
+        numCardsInDeck = 36;
 
         deck = new ArrayList<Card>();
         //adding all of 70 cards into the deck
@@ -80,7 +94,6 @@ public class GameState {
         flight2 = new ArrayList<>();
         flight3 = new ArrayList<>();
         flight4 = new ArrayList<>();
-
         player1Hand = new ArrayList<>();
         player2Hand = new ArrayList<>();
         player3Hand = new ArrayList<>();
@@ -93,11 +106,20 @@ public class GameState {
         player4HandSize = 6;
 
         //adding 6 random cards to each players hand using the randomCard function
+        //this is the starting hand of each player
         for(int j = 0; j < 6; j++){
            player1Hand.add(randomCard());
            player2Hand.add(randomCard());
            player3Hand.add(randomCard());
            player4Hand.add(randomCard());
+        }
+
+        //adding 3 random cards to each players flights to test the toString function
+        for(int k = 0; k < 3; k++){
+            flight1.add(randomCard());
+            flight2.add(randomCard());
+            flight3.add(randomCard());
+            flight4.add(randomCard());
         }
 
         numCardsOnBoard = 0; //there are no visible cards in the beginning of the game
@@ -116,7 +138,8 @@ public class GameState {
     public GameState(GameState gameStateCopy){
 
         this.gamePhase = gameStateCopy.gamePhase;
-
+        this.round = gameStateCopy.round;
+        this.gambit = gameStateCopy.gambit;
         this.currentPlayer = gameStateCopy.currentPlayer;
         this.roundLeader = gameStateCopy.roundLeader;
 
@@ -199,41 +222,79 @@ public class GameState {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append("All Player ID's:\t");
-        for(String e : id)
+        sb.append("----------------------------------\n");
+        sb.append("Current Phase: "+gamePhase+"\n");
+        sb.append("Current Round: " + round+"\n");
+        sb.append("Current Stakes: " + currentStakes + "\n");
+        sb.append("Total Gambits: " + gambit +"\n");
+        sb.append("----------------------------------\n");
+        sb.append("All Player ID's:\n");
+        for(int i = 0; i < numPlayers; i++)
         {
-            sb.append(e);
-            sb.append("\t");
+            sb.append("Player "+(i+1)+": " + id[i]);
+            sb.append("\n");
         }
-        sb.append("\n");
-        sb.append("Player 1 Hand: \n");
+        sb.append("----------------------------------\n");
+
+        //printing each resources for player1
+        sb.append("PLAYER 1:\n");
+        sb.append("Hoard: " + player1Hoard + "\n");
+        sb.append("Hand: \n");
         for(int i = 0; i < player1HandSize; i++){
             sb.append((i+1)+".\t"+player1Hand.get(i).toString()+"\n");
         }
-        sb.append("\n");
-        sb.append("Player 2 Hand: \n");
-        for(int i = 0; i < player2HandSize; i++){
-            sb.append((i+1)+".\t"+player2Hand.get(i).toString()+"\n");
-        }
-        sb.append("Player 3 Hand: \n");
-        for(int i = 0; i < player3HandSize; i++){
-            sb.append((i+1)+".\t"+player3Hand.get(i).toString()+"\n");
-        }
-        sb.append("Player 4 Hand: \n");
-        for(int i = 0; i < player4HandSize; i++){
-            sb.append((i+1)+".\t"+player4Hand.get(i).toString()+"\n");
-        }
-
-        sb.append("Player 1 Flight: \n");
+        sb.append("Flight: \n");
         for(int i = 0; i < flight1.size(); i++){
             sb.append((i+1)+".\t"+flight1.get(i).toString()+"\n");
         }
+
+        //printing each resources for player2
+        sb.append("----------------------------------\n");
+        sb.append("PLAYER 2: \n");
+        sb.append("Hoard: " + player2Hoard + "\n");
+        sb.append("Hand: \n");
+        for(int i = 0; i < player2HandSize; i++){
+            sb.append((i+1)+".\t"+player2Hand.get(i).toString()+"\n");
+        }
+        sb.append("Flight: \n");
+        for(int i = 0; i < flight2.size(); i++){
+            sb.append((i+1)+".\t"+flight2.get(i).toString()+"\n");
+        }
+
+        //printing each resources for player3
+        sb.append("----------------------------------\n");
+        sb.append("PLAYER 3: \n");
+        sb.append("Hoard: " + player3Hoard + "\n");
+        sb.append("Hand: \n");
+        for(int i = 0; i < player3HandSize; i++){
+            sb.append((i+1)+".\t"+player3Hand.get(i).toString()+"\n");
+        }
+        sb.append("Flight: \n");
+        for(int i = 0; i < flight3.size(); i++){
+            sb.append((i+1)+".\t"+flight3.get(i).toString()+"\n");
+        }
+
+        //printing each resources for player4
+        sb.append("----------------------------------\n");
+        sb.append("PLAYER 4: \n");
+        sb.append("Hoard: " + player3Hoard + "\n");
+        sb.append("Hand: \n");
+        for(int i = 0; i < player4HandSize; i++){
+            sb.append((i+1)+".\t"+player4Hand.get(i).toString()+"\n");
+        }
+        sb.append("Flight: \n");
+        for(int i = 0; i < flight4.size(); i++){
+            sb.append((i+1)+".\t"+flight4.get(i).toString()+"\n");
+        }
+        sb.append("----------------------------------\n");
+
         return sb.toString();
 
     }
 
     /**
      * returns a random card from the deck and removes it from the deck list
+     * used to test the toString method by initializing hands and flights with random cards
      * @return Card Object
      */
     public Card randomCard(){
@@ -241,12 +302,168 @@ public class GameState {
         Random r = new Random();
         int random = r.nextInt(numCardsInDeck);
         Card newCard = deck.get(random);
+
+        //removes the card from the deck so it cant be chosen again
         numCardsInDeck--;
         deck.remove(random);
 
-        //newCard.setPlacement(hand);
         return newCard;
 
     }
+
+    /**
+     * Forfeit action ends the game
+     *
+     * @return true if it's a valid move / false if it's not
+     */
+    public boolean forfeit(){
+        gamePhase = FORFEIT;
+        return true;
+    }
+
+    /**
+     * Choose Flight action occurs when a card's power requires the player to choose an
+     * opponent's flight.
+     *
+     * @param player - player choosing a flight
+     * @return true if it's a valid move / false if it's not
+     */
+    public boolean chooseFlight(int player){
+        if(player == currentPlayer && gamePhase == CHOICE) {
+
+            //do something (implemented later)
+
+            //choice phase is over returns to the round
+            gamePhase = ROUND;
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    /**
+     * Choose Option action occurs when certain cards' powers trigger a choice for a player
+     * That choice is displayed through the game text
+     *
+     * @param chosenPlayer - the player the choice is given to
+     * @param player - the player who played the card that triggered a choice
+     * @return - true if it's a valid move / false if it's not
+     */
+    public boolean chooseOption(int chosenPlayer, int player){
+        if(gamePhase == CHOICE){
+
+            //it's now the chosen player's turn (temporarily until they make a choice)
+            currentPlayer = chosenPlayer;
+
+            //do something (implemented later)
+
+            //its now the original players turn again
+            currentPlayer = player;
+
+            //choice phase is over returns to the round
+            gamePhase = ROUND;
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    /**
+     * choose ante action used when certain powers require a player to choose an ante card
+     *
+     * @param player - player who is trying to make the move
+     * @return - true if it's a valid move / false if it's not
+     */
+    public boolean chooseAnte(int player){
+        if(gamePhase == CHOICE && player == currentPlayer){
+
+            //do something (implemented later)
+
+            //choice phase is over returns to the round
+            gamePhase = ROUND;
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    /**
+     * End Turn function used for the end turn button
+     *
+     * @param player - player trying to end their turn
+     * @return - true if it's a valid move / false if it's not
+     */
+    public boolean endTurn(int player){
+        if(player == currentPlayer){
+
+            //sets the current player to the next player
+            currentPlayer++;
+
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    /**
+     * Select Card action to view a card
+     *
+     * @return true if it's a valid move / false if it's not
+     */
+    public boolean selectCard(){
+
+        //returns true if there are any visible cards on the board to be selected
+        if(boardCards.size()>0){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+    /**
+     * Play Card action using the play button (only visible when a card is selected)
+     *
+     * @param player - player making the action
+     * @param card - card they are trying to play
+     * @return - true if it's a valid move / false if it's not
+     */
+    public boolean playCard(int player, Card card){
+
+        //the card must be selected in order to play the card
+        selectCard();
+
+        // a player can only play a card if it's their turn
+        if(currentPlayer == player){
+
+            //removes the card from the hand of the current player
+            if(currentPlayer == 0){
+                player1Hand.remove(card);
+                player1HandSize --;
+            }
+            if(currentPlayer == 1){
+                player2Hand.remove(card);
+                player2HandSize --;
+            }
+            if(currentPlayer == 2){
+                player3Hand.remove(card);
+                player3HandSize --;
+            }
+            if(currentPlayer == 3){
+                player4Hand.remove(card);
+                player4HandSize --;
+            }
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+
 
 }
