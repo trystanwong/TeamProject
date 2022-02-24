@@ -206,30 +206,49 @@ public class GameState {
             sb.append("\t");
         }
         sb.append("\n");
+
+        sb.append("\n");
+        sb.append("Player 1 Hoard: " + player1Hoard + "\n");
+
         sb.append("Player 1 Hand: \n");
         for(int i = 0; i < player1HandSize; i++){
             sb.append((i+1)+".\t"+player1Hand.get(i).toString()+"\n");
         }
         sb.append("\n");
+
+        sb.append("Player 2 Hoard: " + player2Hoard + "\n");
+
         sb.append("Player 2 Hand: \n");
         for(int i = 0; i < player2HandSize; i++){
             sb.append((i+1)+".\t"+player2Hand.get(i).toString()+"\n");
         }
+
+        sb.append("\n");
+        sb.append("Player 3 Hoard: " + player3Hoard + "\n");
+
         sb.append("Player 3 Hand: \n");
         for(int i = 0; i < player3HandSize; i++){
             sb.append((i+1)+".\t"+player3Hand.get(i).toString()+"\n");
         }
+
+        sb.append("\n");
+        sb.append("Player 4 Hoard: " + player4Hoard + "\n");
+
         sb.append("Player 4 Hand: \n");
         for(int i = 0; i < player4HandSize; i++){
             sb.append((i+1)+".\t"+player4Hand.get(i).toString()+"\n");
         }
 
+        sb.append("\n");
         sb.append("Player 1 Flight: \n");
         for(int i = 0; i < flight1.size(); i++){
             sb.append((i+1)+".\t"+flight1.get(i).toString()+"\n");
         }
-        return sb.toString();
 
+        sb.append("\n");
+        sb.append("Current Stakes:" + "\t" + currentStakes + "\n");
+
+        return sb.toString();
     }
 
     /**

@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ArrayList<Card> cards = new ArrayList<>();
         for(int i = 0; i < 36; i++){
-            cards.add(new Card("Red Dragon",i));
+            cards.add(new Card("Red Dragon ", 10, "Boom", 1, 1));
         }
 
 

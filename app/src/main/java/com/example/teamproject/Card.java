@@ -121,8 +121,8 @@ public class Card {
      */
     @Override
     public String toString() {
-        return this.name + "is a " + this.type + "with a strength of " + this.Strength +
-                ", and its power is " + this.power + ". This card is" + this.placement;
+        return this.name + "is a " + this.getType() + " with a strength of " + this.Strength +
+                ", and its power is " + this.power + ". This card is " + this.getPlacement();
     }
 }
 
