@@ -21,6 +21,7 @@ public class Card {
     private int placement;//where the card is with respect to the "game"
 
     //constants for the different placements of each card
+    //This will determine the visibility of each card from the perspective of each player
     private static final int DECK = 0;
     private static final int HAND = 1;
     private static final int FLIGHT = 2;

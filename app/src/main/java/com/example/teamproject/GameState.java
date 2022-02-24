@@ -34,7 +34,7 @@ public class GameState {
     private static final int FORFEIT = 5;
 
     private int numCardsInDeck; //cards remaining in the deck
-    private int numCardsOnBoard; //number cards that are not in the deck
+    private int numCardsOnBoard; //number cards that are visible to every player
 
     private ArrayList<Card> boardCards; //all the cards that have been removed from the deck
     private ArrayList<Card> deck; //current stack of deck
@@ -455,6 +455,7 @@ public class GameState {
     /**
      * Select Card action to view a card
      *
+     * See card class for placement of cards
      * @return true if it's a valid move / false if it's not
      */
     public boolean selectCard(){
