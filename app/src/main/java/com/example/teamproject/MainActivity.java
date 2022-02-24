@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
 
         //adding 36 "Dummy" cards to the deck
         for(int i = 0; i < 36; i++){
-            cards.add(new Card("Red Dragon ", 10, "Boom", 1, 1));
+            cards.add(new Card("Red Dragon ", i));
         }
 
         GameState gs = new GameState(cards);
