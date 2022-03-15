@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 /**
  * MainActivity for the TDA Game
+ *
  * @author Trystan Wong
  * @author Kawika Suzuki
  * @author Mohammad Surur

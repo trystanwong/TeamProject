@@ -40,28 +40,14 @@ public class GameState {
     private ArrayList<Card> deck; //current stack of deck
 
     //all player flights
-    private ArrayList<Card> flight1;
-    private ArrayList<Card> flight2;
-    private ArrayList<Card> flight3;
-    private ArrayList<Card> flight4;
+    private ArrayList<Card>[] flights;
 
-    //all player hands and hand sizes
-    private int player1HandSize;
-    private int player2HandSize;
-    private int player3HandSize;
-    private int player4HandSize;
-
-    private ArrayList<Card> player1Hand;
-    private ArrayList<Card> player2Hand;
-    private ArrayList<Card> player3Hand;
-    private ArrayList<Card> player4Hand;
+    //all player hands
+    private ArrayList<Card>[] hands;
 
     //all player hoards and current stakes for the current gambit
     private int currentStakes;
-    private int player1Hoard;
-    private int player2Hoard;
-    private int player3Hoard;
-    private int player4Hoard;
+    private int[] hoards;
 
     /**
      * Constructor for the GameState at the beginning of the game
@@ -94,49 +80,30 @@ public class GameState {
             deck.add(initDeck.get(i));
         }
 
-        //initializing each players flight and hand
-        flight1 = new ArrayList<>();
-        flight2 = new ArrayList<>();
-        flight3 = new ArrayList<>();
-        flight4 = new ArrayList<>();
-
-        player1Hand = new ArrayList<>();
-        player2Hand = new ArrayList<>();
-        player3Hand = new ArrayList<>();
-        player4Hand = new ArrayList<>();
-
-        //all players start with 6 cards
-        player1HandSize = 6;
-        player2HandSize = 6;
-        player3HandSize = 6;
-        player4HandSize = 6;
-
-        //adding 6 random cards to each players hand using the randomCard function
-        //this is the starting hand of each player
-        for(int j = 0; j < 6; j++){
-           player1Hand.add(randomCard());
-           player2Hand.add(randomCard());
-           player3Hand.add(randomCard());
-           player4Hand.add(randomCard());
+        //initializing each players flight, hand, and hoard (each player starts with 50 gold)
+        flights = new ArrayList[4];
+        hands = new ArrayList[4];
+        hoards = new int[4];
+        for(int i = 0; i < 4; i++){
+            flights[i] = new ArrayList<Card>();
+            hands[i] = new ArrayList<Card>();
+            hoards[i] = 50;
         }
 
-        //adding 3 random cards to each players flights to test the toString function
-        for(int k = 0; k < 3; k++){
-            flight1.add(randomCard());
-            flight2.add(randomCard());
-            flight3.add(randomCard());
-            flight4.add(randomCard());
-        }
-
-        numCardsOnBoard = 0; //there are no visible cards in the beginning of the game
         currentStakes = 0; //no stakes until a gambit begins
+        numCardsOnBoard = 0; //there are no visible cards in the beginning of the game
 
-        //each player starts with 50 gold
-        player1Hoard = 50;
-        player2Hoard = 50;
-        player3Hoard = 50;
-        player4Hoard = 50;
-
+        for(int i = 0; i<4; i++) {
+            //adding 6 random cards to each players hand using the randomCard function
+            //this is the starting hand of each player
+            for (int j = 0; j < 6; j++) {
+                hands[i].add(randomCard());
+            }
+            //adding 3 random cards to each players flights to test the toString function
+            for(int k = 0; k < 3; k++){
+                flights[i].add(randomCard());
+            }
+        }
     }
     /**
      * Copy Constructor for the GameState
@@ -168,51 +135,18 @@ public class GameState {
             this.boardCards.add(new Card(gameStateCopy.boardCards.get(index)));
         }
 
-        //copying each player's hand
-        for(Card e : gameStateCopy.player1Hand) {
-            int index = gameStateCopy.player1Hand.indexOf(e);
-            this.player1Hand.add(new Card(gameStateCopy.player1Hand.get(index)));
+        //copying each player's hand and flight
+        for(int i = 0; i < 4; i++){
+            for(Card c : gameStateCopy.hands[i] ){
+                int index = gameStateCopy.hands[i].indexOf(c);
+                this.hands[i].add(new Card(gameStateCopy.hands[i].get(index)));
+            }
+            for(Card f : gameStateCopy.flights[i]){
+                int index = gameStateCopy.flights[i].indexOf(f);
+                this.flights[i].add(new Card(gameStateCopy.flights[i].get(index)));
+            }
         }
-        for(Card e : gameStateCopy.player2Hand) {
-            int index = gameStateCopy.player2Hand.indexOf(e);
-            this.player2Hand.add(new Card(gameStateCopy.player2Hand.get(index)));
-        }
-        for(Card e : gameStateCopy.player3Hand) {
-            int index = gameStateCopy.player3Hand.indexOf(e);
-            this.player3Hand.add(new Card(gameStateCopy.player3Hand.get(index)));
-        }
-        for(Card e : gameStateCopy.player4Hand) {
-            int index = gameStateCopy.player4Hand.indexOf(e);
-            this.player4Hand.add(new Card(gameStateCopy.player4Hand.get(index)));
-        }
-
-        //copying each player's flight
-        for(Card f : gameStateCopy.flight1) {
-            int index = gameStateCopy.flight1.indexOf(f);
-            this.flight1.add(new Card(gameStateCopy.flight1.get(index)));
-        }
-        for(Card f : gameStateCopy.flight2) {
-            int index = gameStateCopy.flight1.indexOf(f);
-            this.flight2.add(new Card(gameStateCopy.flight2.get(index)));
-        }
-        for(Card f : gameStateCopy.flight3) {
-            int index = gameStateCopy.flight3.indexOf(f);
-            this.flight3.add(new Card(gameStateCopy.flight3.get(index)));
-        }
-        for(Card f : gameStateCopy.flight4) {
-            int index = gameStateCopy.flight4.indexOf(f);
-            this.flight4.add(new Card(gameStateCopy.flight4.get(index)));
-        }
-
         this.currentStakes = gameStateCopy.currentStakes;
-
-        //copying all the players hoards
-        this.player1Hoard = gameStateCopy.player1Hoard;
-        this.player2Hoard = gameStateCopy.player2Hoard;
-        this.player3Hoard = gameStateCopy.player3Hoard;
-        this.player4Hoard = gameStateCopy.player4Hoard;
-
-
     }
 
     /**
@@ -278,56 +212,19 @@ public class GameState {
         sb.append("Current Stakes: " + currentStakes + "\n");
         sb.append("Total Gambits: " + gambit +"\n");
 
-        //printing each resources for player1
-        sb.append("----------------------------------\n");
-        sb.append("PLAYER 1:\n");
-        sb.append("Hoard: " + player1Hoard + "\n");
-        sb.append("Hand: \n");
-        for(int i = 0; i < player1HandSize; i++){
-            sb.append((i+1)+".\t"+player1Hand.get(i).toString()+"\n");
-        }
-        sb.append("Flight: \n");
-        for(int i = 0; i < flight1.size(); i++){
-            sb.append((i+1)+".\t"+flight1.get(i).toString()+"\n");
-        }
-
-        //printing each resources for player2
-        sb.append("----------------------------------\n");
-        sb.append("PLAYER 2: \n");
-        sb.append("Hoard: " + player2Hoard + "\n");
-        sb.append("Hand: \n");
-        for(int i = 0; i < player2HandSize; i++){
-            sb.append((i+1)+".\t"+player2Hand.get(i).toString()+"\n");
-        }
-        sb.append("Flight: \n");
-        for(int i = 0; i < flight2.size(); i++){
-            sb.append((i+1)+".\t"+flight2.get(i).toString()+"\n");
-        }
-
-        //printing each resources for player3
-        sb.append("----------------------------------\n");
-        sb.append("PLAYER 3: \n");
-        sb.append("Hoard: " + player3Hoard + "\n");
-        sb.append("Hand: \n");
-        for(int i = 0; i < player3HandSize; i++){
-            sb.append((i+1)+".\t"+player3Hand.get(i).toString()+"\n");
-        }
-        sb.append("Flight: \n");
-        for(int i = 0; i < flight3.size(); i++){
-            sb.append((i+1)+".\t"+flight3.get(i).toString()+"\n");
-        }
-
-        //printing each resources for player4
-        sb.append("----------------------------------\n");
-        sb.append("PLAYER 4: \n");
-        sb.append("Hoard: " + player3Hoard + "\n");
-        sb.append("Hand: \n");
-        for(int i = 0; i < player4HandSize; i++){
-            sb.append((i+1)+".\t"+player4Hand.get(i).toString()+"\n");
-        }
-        sb.append("Flight: \n");
-        for(int i = 0; i < flight4.size(); i++){
-            sb.append((i+1)+".\t"+flight4.get(i).toString()+"\n");
+        //printing the resources for each player
+        for(int i = 0; i < 4; i++){
+            sb.append("----------------------------------\n");
+            sb.append("PLAYER "+i+":\n");
+            sb.append("Hoard: " + hoards[i] + "\n");
+            sb.append("Hand: \n");
+            for(int j = 0; j < hands[i].size(); j++){
+                sb.append((j+1)+".\t"+hands[i].get(j).toString()+"\n");
+            }
+            sb.append("Flight: \n");
+            for(int k = 0; k < flights[i].size(); k++){
+                sb.append((k+1)+".\t"+flights[i].get(k).toString()+"\n");
+            }
         }
         sb.append("----------------------------------\n");
 
@@ -486,20 +383,16 @@ public class GameState {
 
             //removes the card from the hand of the current player
             if(currentPlayer == 0){
-                player1Hand.remove(card);
-                player1HandSize --;
+                hands[0].remove(card);
             }
             if(currentPlayer == 1){
-                player2Hand.remove(card);
-                player2HandSize --;
+                hands[1].remove(card);
             }
             if(currentPlayer == 2){
-                player3Hand.remove(card);
-                player3HandSize --;
+                hands[2].remove(card);
             }
             if(currentPlayer == 3){
-                player4Hand.remove(card);
-                player4HandSize --;
+                hands[3].remove(card);
             }
             return true;
         }
