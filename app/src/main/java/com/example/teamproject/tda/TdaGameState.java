@@ -27,12 +27,12 @@ public class TdaGameState extends GameState{
     private int gamePhase; //what phase of the game we are in
 
     //constants for different phases of the game in gamePhase
-    private static final int BEGIN_GAME = 0;
-    private static final int ANTE = 1;
-    private static final int ROUND = 2;
-    private static final int CHOICE = 3;
-    private static final int END_GAMBIT = 4;
-    private static final int FORFEIT = 5;
+    public static final int BEGIN_GAME = 0;
+    public static final int ANTE = 1;
+    public static final int ROUND = 2;
+    public static final int CHOICE = 3;
+    public static final int END_GAMBIT = 4;
+    public static final int FORFEIT = 5;
 
     private int numCardsInDeck; //cards remaining in the deck
     private int numCardsOnBoard; //number cards that are visible to every player
@@ -441,6 +441,9 @@ public class TdaGameState extends GameState{
 
     public void setGamePhase(int phase){
         gamePhase = phase;
+    }
+    public int getGamePhase(){
+        return gamePhase;
     }
 
     public ArrayList<Card> getDeck(){

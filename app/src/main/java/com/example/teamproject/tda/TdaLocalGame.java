@@ -6,7 +6,7 @@ import com.example.teamproject.game.actionMsg.GameAction;
 
 public class TdaLocalGame extends LocalGame {
 
-    TdaGameState tda;
+    private TdaGameState tda;
 
     /**
      * This ctor creates a new game state
