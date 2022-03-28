@@ -6,6 +6,7 @@ android {
     compileSdk 32
 
     defaultConfig {
+        vectorDrawables.useSupportLibrary = true
         applicationId "com.example.teamproject"
         minSdk 29
         targetSdk 32

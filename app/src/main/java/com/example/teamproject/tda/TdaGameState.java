@@ -40,6 +40,8 @@ public class TdaGameState extends GameState{
     private ArrayList<Card> boardCards; //all the cards that have been removed from the deck
     private ArrayList<Card> deck; //current stack of deck
 
+    private Card selectedCard;
+
     //all player flights
     private ArrayList<ArrayList<Card>> flights;
 
@@ -90,6 +92,7 @@ public class TdaGameState extends GameState{
             hoards[i] = 50;
         }
 
+        boardCards = new ArrayList<>();
         currentStakes = 0; //no stakes until a gambit begins
         numCardsOnBoard = 0; //there are no visible cards in the beginning of the game
 
@@ -97,14 +100,29 @@ public class TdaGameState extends GameState{
             //adding 6 random cards to each players hand using the randomCard function
             //this is the starting hand of each player
             for (int j = 0; j < 6; j++) {
-                hands.get(i).add(randomCard());
+                Card newHand = randomCard();
+                hands.get(i).add(newHand);
             }
             //adding 3 random cards to each players flights to test the toString function
             for(int k = 0; k < 3; k++){
+                Card newFlight = randomCard();
                 flights.get(i).add(randomCard());
-                numCardsOnBoard++;
+                boardCards.add(new Card(newFlight));
             }
         }
+
+        selectedCard = hands.get(0).get(0);
+
+        Card removed = flights.get(0).get(2);
+        flights.get(0).remove(removed);
+
+        //copying all of the human players cards to BoardCards
+        for(int i = 0; i < 6; i++){
+            boardCards.add(new Card(hands.get(0).get(i)));
+        }
+
+
+
     }
     /**
      * Copy Constructor for the GameState
@@ -119,6 +137,8 @@ public class TdaGameState extends GameState{
 
         //copying the names
         this.hoards = tdaGameStateCopy.hoards;
+
+        this.selectedCard = new Card(tdaGameStateCopy.selectedCard);
 
         //copying the cards in the deck
         Card c = new Card();
@@ -370,7 +390,7 @@ public class TdaGameState extends GameState{
     public boolean selectCard(){
 
         //returns true if there are any visible cards on the board to be selected
-        if(numCardsOnBoard > 0){
+        if(boardCards.size() > 0){
             return true;
         }
         else{
@@ -382,29 +402,22 @@ public class TdaGameState extends GameState{
      * Play Card action using the play button (only visible when a card is selected)
      *
      * @param player - player making the action
-     * @param card - card they are trying to play
+     * @param index - card they are trying to play
      * @return - true if it's a valid move / false if it's not
      */
-    public boolean playCard(int player, Card card){
+    public boolean playCard(int player, int index){
 
         //the card must be selected in order to play the card
         selectCard();
+        //selectCard();
 
         // a player can only play a card if it's their turn
         if(currentPlayer == player){
 
             //removes the card from the hand of the current player
             if(currentPlayer == 0){
-                hands.get(0).remove(card);
-            }
-            if(currentPlayer == 1){
-                hands.get(1).remove(card);
-            }
-            if(currentPlayer == 2){
-                hands.get(2).remove(card);
-            }
-            if(currentPlayer == 3){
-                hands.get(3).remove(card);
+                Card c = new Card(hands.get(currentPlayer).remove(index));
+                flights.get(0).add(new Card(c));
             }
             return true;
         }
@@ -435,21 +448,114 @@ public class TdaGameState extends GameState{
         return hands.get(player).get(index);
     }
 
+    /**
+     * getter for the hoards
+     * @return
+     */
     public int[] getHoards(){
         return hoards;
     }
 
+    /**
+     * set the current phase of the game
+     * @param phase
+     */
     public void setGamePhase(int phase){
         gamePhase = phase;
     }
+
+    /**
+     * Get the current phase of the game
+     * @return
+     */
     public int getGamePhase(){
         return gamePhase;
     }
 
+    /**
+     * returns the hand of a size
+     * @param index - which hand
+     * @return size of hand
+     */
+    public int getHandSize(int index){
+
+        return hands.get(index).size();
+    }
+
+    /**
+     * add a card from a hand to a flight
+     * @param player
+     * @param index
+     */
+    public void addFlightCard(int player, int index){
+        flights.get(player).add(getHandCard(index));
+    }
+
+    /**
+     * changing the value of a player's hoard
+     * @param hoard
+     * @param amount
+     */
+    public void setHoard(int hoard, int amount){
+        hoards[hoard] = amount;
+    }
+
+    /**
+     * returns a card in the human players hand
+     * @param index
+     * @return
+     */
+    public Card getHandCard(int index){
+        return hands.get(0).get(index);
+    }
+
+    /**
+     * Returns the deck of cards
+     * @return
+     */
     public ArrayList<Card> getDeck(){
         return deck;
     }
 
+    /**
+     * returns the hoard value of the given player index
+     * @param index
+     * @return
+     */
+    public int getHoard(int index){
+        return hoards[index];
+    }
 
+    /**
+     * returns the number of cards on the board
+     * @return
+     */
+    public int getBoardSize() {
+        return boardCards.size();
+    }
+
+    /**
+     * returns an arraylist of all the cards visible to the player on the board
+     * @return
+     */
+    public ArrayList<Card> getBoard(){
+        return boardCards;
+    }
+
+    public void setSelectedCard(Card c){
+        selectedCard = new Card(c);
+    }
+
+    public Card getSelectedCard(){
+        return new Card(selectedCard);
+    }
+
+    public int getFlightSize(int player){
+        return flights.get(player).size();
+    }
+
+    public Card getFlightCard(int flight, int index) {
+        return flights.get(flight).get(index);
+    }
 }
 

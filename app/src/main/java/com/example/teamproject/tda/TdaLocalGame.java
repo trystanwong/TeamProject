@@ -13,11 +13,13 @@ public class TdaLocalGame extends LocalGame {
      */
     public TdaLocalGame() {
         tda = new TdaGameState();
+        System.out.println(tda.getHandSize(1));
     }
 
     @Override
     protected void sendUpdatedStateTo(GamePlayer p) {
-
+        TdaGameState update = new TdaGameState(tda);
+        p.sendInfo(update);
     }
 
     /**
@@ -44,6 +46,9 @@ public class TdaLocalGame extends LocalGame {
                 return "Game is Over";
             }
         }
+        if(tda.getGamePhase()==TdaGameState.FORFEIT){
+            return "Game is over";
+        }
         return null;
     }
 
@@ -53,6 +58,18 @@ public class TdaLocalGame extends LocalGame {
         if (action instanceof TdaForfeitAction){
             tda.forfeit();
             tda.setGamePhase(5);
+            return true;
+        }
+        if (action instanceof TdaPlayCardAction){
+           tda.playCard(tda.getCurrentPlayer(),5);
+           System.out.println("hi");
+           return true;
+        }
+
+        if( action instanceof TdaSelectCardAction){
+            tda.setSelectedCard(tda.getHandCard(((TdaSelectCardAction) action).getIndex()));
+            tda.selectCard();
+            return true;
         }
 
         return false;

@@ -123,6 +123,13 @@ public class Card {
         return nameOfPlacement;
     }
 
+    public String getName(){
+        return name;
+    }
+    public int getStrength(){
+        return strength;
+    }
+
     /**
      * toString: method for instantiating the variables and turning them into a String
      *
@@ -140,6 +147,14 @@ public class Card {
      */
     public ArrayList<Card> buildDeck(){
         ArrayList deck = new ArrayList();
+
+        //Copper dragon
+        deck.add(new Card("Copper Dragon", 1, GOOD));
+        deck.add(new Card("Copper Dragon", 3, GOOD));
+        deck.add(new Card("Copper Dragon", 5, GOOD));
+        deck.add(new Card("Copper Dragon", 7, GOOD));
+        deck.add(new Card("Copper Dragon", 8, GOOD));
+        deck.add(new Card("Copper Dragon", 10, GOOD));
 
         //All Mortals
         deck.add(new Card("The Fool",3,MORTAL));
@@ -189,14 +204,6 @@ public class Card {
         deck.add(new Card("Gold Dragon", 9, GOOD));
         deck.add(new Card("Gold Dragon", 11, GOOD));
         deck.add(new Card("Gold Dragon", 13, GOOD));
-
-        //Copper dragon
-        deck.add(new Card("Copper Dragon", 1, GOOD));
-        deck.add(new Card("Copper Dragon", 3, GOOD));
-        deck.add(new Card("Copper Dragon", 5, GOOD));
-        deck.add(new Card("Copper Dragon", 7, GOOD));
-        deck.add(new Card("Copper Dragon", 8, GOOD));
-        deck.add(new Card("Copper Dragon", 10, GOOD));
 
         //White Dragon
         deck.add(new Card("White Dragon", 1, EVIL));

@@ -5,6 +5,17 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.example.teamproject.R;
+import com.example.teamproject.game.config.GameConfig;
+
+import java.util.ArrayList;
+
+import com.example.teamproject.game.GameMainActivity;
+import com.example.teamproject.game.GamePlayer;
+import com.example.teamproject.game.LocalGame;
+import com.example.teamproject.game.config.GameConfig;
+import com.example.teamproject.game.config.GamePlayerType;
+
+import java.util.ArrayList;
 
 /**
  * MainActivity for the TDA Game
@@ -14,16 +25,45 @@ import com.example.teamproject.R;
  * @author Mohammad Surur
  * @author Marcus Rison
  */
-public class MainActivity extends AppCompatActivity {
+public class TdaMainActivity extends GameMainActivity {
+
+    private static final int PORT_NUMBER = 2278;
+
+    /**
+     * Create the default configuration for this game:
+     * - one human player vs. one computer player
+     * - minimum of 1 player, maximum of 2
+     *
+     * @return
+     * 		the new configuration object, representing the default configuration
+     */
+    @Override
+    public GameConfig createDefaultConfig() {
+
+        // Define the allowed player types
+        ArrayList<GamePlayerType> playerTypes = new ArrayList<GamePlayerType>();
+
+        // Pig has two player types:  human and computer
+        playerTypes.add(new GamePlayerType("Local Human Player") {
+            public GamePlayer createPlayer(String name) {
+                return new TdaHumanPlayer(name);
+            }});
+        playerTypes.add(new GamePlayerType("Computer Player") {
+            public GamePlayer createPlayer(String name) {
+                return new TdaComputerPlayer(name);
+            }});
+
+        // Create a game configuration class for Pig:
+        GameConfig defaultConfig = new GameConfig(playerTypes, 1, 2, "TDA", PORT_NUMBER);
+        defaultConfig.addPlayer("Human", 0); // player 1: a human player
+        defaultConfig.addPlayer("Computer", 1); // player 2: a computer player
+        defaultConfig.setRemoteData("Remote Human Player", "", 0);
+
+        return defaultConfig;
+    }//createDefaultConfig
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        //creating an instance of the GameState and printing out the toString version of it
-        TdaGameState gs = new TdaGameState();
-        TdaGameState copy = new TdaGameState(gs);
-        System.out.println(copy);
+    public LocalGame createLocalGame() {
+        return new TdaLocalGame();
     }
 }
