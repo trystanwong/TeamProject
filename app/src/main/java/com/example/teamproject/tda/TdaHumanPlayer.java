@@ -35,7 +35,7 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
     private TextView zoomStrength1 = null;
     private TextView zoomStrength2 = null;
 
-    TdaGameState tda;
+    private TdaGameState tda;
 
     private GameMainActivity myActivity;
 
@@ -81,6 +81,35 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
                 buttons[0].setBackgroundColor(Color.GREEN);
             }
 
+
+            for(int i = 0; i < 4; i++){
+                for(int j = 0; j < 3;j++){
+                    String name = tda.getFlightCard(i,j).getName();
+                    setImage(flights[i][j],name);
+                    board.add(flights[i][j]);
+                    flights[i][j].setOnTouchListener(this);
+                }
+            }
+
+            for(int i = 0; i < 10; i++){
+                String name = tda.getHandCard(i).getName();
+                setImage(hand[i],name);
+                board.add(hand[i]);
+                hand[i].setOnTouchListener(this);
+            }
+
+        }
+
+        //If its this human player's turn;
+        if(tda.getCurrentPlayer()==playerNum){
+            if(tda.getPlayButton()==true){
+                buttons[0].setBackgroundColor(Color.GREEN);
+            }
+            else if(tda.getPlayButton()==false){
+                buttons[0].setBackgroundColor(Color.GRAY);
+            }
+            buttons[2].setBackgroundColor(Color.GREEN);
+            buttons[2].setText("END TURN");
         }
 
 
@@ -139,20 +168,7 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
         hand[8] = activity.findViewById(R.id.playerHand9);
         hand[9] = activity.findViewById(R.id.playerHand10);
 
-        for(int i = 0; i < 4; i++){
-            for(int j = 0; j < tda.getFlightSize(i);j++){
-                String name = tda.getFlightCard(i,j).getName();
-                setImage(flights[i][j],name);
-                flights[i][j].setOnTouchListener(this);
-            }
-        }
-
-        for(int i = 0; i < tda.getHandSize(tda.getCurrentPlayer());i++){
-            String name = tda.getHandCard(i).getName();
-            setImage(hand[i],name);
-            hand[i].setOnTouchListener(this);
-        }
-
+        board = new ArrayList<>();
 
         buttons = new Button[3];
         buttons[0] = activity.findViewById(R.id.selectCardPlay);
@@ -166,7 +182,6 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
         zoom = activity.findViewById(R.id.cardZoom);
         zoomStrength1 = activity.findViewById(R.id.zoomCardStrength1);
         zoomStrength2 = activity.findViewById(R.id.zoomCardStrength2);
-
 
     }
 
@@ -252,8 +267,13 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
 
         }
 
+        //play button is pressed
         if(view == buttons[0]){
+            Card c = new Card(tda.getSelectedCard());
             super.game.sendAction(new TdaPlayCardAction(this));
+            if(c.getName()!=null){
+                board.remove(c);
+            }
             zoom.setVisibility(View.INVISIBLE);
             zoomStrength1.setVisibility(View.INVISIBLE);
             zoomStrength2.setVisibility(View.INVISIBLE);
@@ -261,7 +281,7 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
             buttons[1].setVisibility(View.INVISIBLE);
         }
         if(view == buttons[2]) {
-            super.game.sendAction(new TdaPlayCardAction(this));
+            //super.game.sendAction(new TdaPlayCardAction(this));
         }
 
     }
@@ -277,9 +297,7 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
               if(view == (flights[i][j])) {
                   String strength = Integer.toString(tda.getFlightCard(i,j).getStrength());
                   String name = tda.getFlightCard(i,j).getName();
-                  tda.setSelectedCard(tda.getFlightCard(i,j));
                   setImage(zoom,name);
-
                   buttons[0].setVisibility(View.VISIBLE);
                   buttons[1].setVisibility(View.VISIBLE);
                   zoomStrength1.setText(strength);
@@ -287,7 +305,8 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
                   zoom.setVisibility(View.VISIBLE);
                   zoomStrength1.setVisibility(View.VISIBLE);
                   zoomStrength2.setVisibility(View.VISIBLE);
-
+                  int index = board.indexOf(flights[i][j]);
+                  super.game.sendAction(new TdaSelectCardAction(this,index));
               }
             }
          }
@@ -296,7 +315,6 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
             if(view == hand[i]) {
                 String strength = Integer.toString(tda.getHandCard(i).getStrength());
                 String name = tda.getHandCard(i).getName();
-                tda.setSelectedCard(new Card(tda.getHandCard(i)));
                 setImage(zoom,name);
                 buttons[0].setVisibility(View.VISIBLE);
                 buttons[1].setVisibility(View.VISIBLE);
@@ -305,7 +323,8 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
                 zoom.setVisibility(View.VISIBLE);
                 zoomStrength1.setVisibility(View.VISIBLE);
                 zoomStrength2.setVisibility(View.VISIBLE);
-                super.game.sendAction(new TdaSelectCardAction(this,i));
+                int index = board.indexOf(hand[i]);
+                super.game.sendAction(new TdaSelectCardAction(this,index));
 
             }
         }

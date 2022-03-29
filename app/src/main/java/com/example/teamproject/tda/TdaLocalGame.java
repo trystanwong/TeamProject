@@ -60,15 +60,52 @@ public class TdaLocalGame extends LocalGame {
             tda.setGamePhase(5);
             return true;
         }
+
+        //play card action
         if (action instanceof TdaPlayCardAction){
-           tda.playCard(tda.getCurrentPlayer(),5);
-           System.out.println("hi");
-           return true;
+
+            //currently selected card
+            int selectedIndex = tda.getSelectedCardIndex();
+            Card c = tda.getBoard().get(selectedIndex);
+
+            if(tda.getFlightSize(tda.getCurrentPlayer())>=3){
+                //grey the play button so the user knows not to press it
+                tda.setPlayButton(false);
+                return false;
+            }
+            if(c.getPlacement()!=c.HAND){
+                tda.setPlayButton(false);
+                return false;
+            }
+            else{
+                tda.setPlayButton(true);
+                tda.playCard(tda.getCurrentPlayer(), selectedIndex);
+                //if the card has a power
+                //c.powerTrigger(c);
+                return true;
+            }
         }
 
+        //select card action
         if( action instanceof TdaSelectCardAction){
-            tda.setSelectedCard(tda.getHandCard(((TdaSelectCardAction) action).getIndex()));
+
             tda.selectCard();
+
+            int selectedIndex = ((TdaSelectCardAction) action).getIndex();
+            tda.setSelectedCardIndex(selectedIndex);
+
+            Card c = tda.getBoard().get(selectedIndex);
+            System.out.println(c);
+            tda.setSelectedCard(new Card(c));
+
+
+            if(c.getPlacement()==c.HAND) {
+                tda.setPlayButton(true);
+            }
+            else{
+                tda.setPlayButton(false);
+            }
+
             return true;
         }
 

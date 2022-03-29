@@ -4,6 +4,7 @@ import com.example.teamproject.game.GamePlayer;
 import com.example.teamproject.game.actionMsg.GameAction;
 
 public class TdaPlayCardAction extends GameAction {
+    private int index;
     /**
      * constructor for GameAction
      *

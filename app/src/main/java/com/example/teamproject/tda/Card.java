@@ -10,7 +10,7 @@ import java.util.ArrayList;
  * @author Mohammad Surur
  * @author Marcus Rison
  */
-public class Card {
+public class Card{
 
     //instance variables
 
@@ -22,11 +22,11 @@ public class Card {
 
     //constants for the different placements of each card
     //This will determine the visibility of each card from the perspective of each player
-    private static final int DECK = 0;
-    private static final int HAND = 1;
-    private static final int FLIGHT = 2;
-    private static final int ANTE = 3;
-    private static final int DISCARD = 4;
+    public static final int DECK = 0;
+    public static final int HAND = 1;
+    public static final int FLIGHT = 2;
+    public static final int ANTE = 3;
+    public static final int DISCARD = 4;
 
     //constant variables for stating what this specific cards type is
     private static final int GOOD = 0;
@@ -35,6 +35,11 @@ public class Card {
 
     public Card(){
 
+        name = "";
+        strength = 0;
+        type = GOOD;
+        power = null;
+        placement = DECK;
     }
     /**
      * Card: constructor for initializing the card
@@ -92,35 +97,15 @@ public class Card {
         return nameOfType;
     }
 
-    /**
-     *
-     * Getter for the location of each Card
-     *
-     * @return the placement of the card as a string
-     */
-    public String getPlacement(Card card) {
+    //getter for card's placement
+    public int getPlacement() {
         //A string defining where the card is currently within the game
+        return placement;
+    }
 
-        String nameOfPlacement = "";
-
-        if (placement == DECK) {
-            nameOfPlacement = "Currently in deck";
-        }
-        else if (placement == HAND) {
-            nameOfPlacement = "Currently in hand";
-        }
-        else if (placement == FLIGHT) {
-            nameOfPlacement = "Currently in flight";
-        }
-        else if (placement == ANTE) {
-            nameOfPlacement = "Currently in Ante";
-        }
-        else if(placement == DISCARD) {
-            nameOfPlacement = "Currently in discard pile";
-        }
-
-        //return what the String representation of what the placement is
-        return nameOfPlacement;
+    //setter for cards placement
+    public void setPlacement(int place){
+        placement = place;
     }
 
     public String getName(){
@@ -140,13 +125,14 @@ public class Card {
         return name + " Strength: " +strength;
     }
 
+
     /**
      * Building the deck of all possible cards given information from the official rule book
      *
      * @return  ArrayList<Card> - deck of cards
      */
     public ArrayList<Card> buildDeck(){
-        ArrayList deck = new ArrayList();
+        ArrayList<Card> deck = new ArrayList();
 
         //Copper dragon
         deck.add(new Card("Copper Dragon", 1, GOOD));
@@ -155,6 +141,7 @@ public class Card {
         deck.add(new Card("Copper Dragon", 7, GOOD));
         deck.add(new Card("Copper Dragon", 8, GOOD));
         deck.add(new Card("Copper Dragon", 10, GOOD));
+
 
         //All Mortals
         deck.add(new Card("The Fool",3,MORTAL));
@@ -241,7 +228,7 @@ public class Card {
         deck.add(new Card("Tiamat", 13, EVIL));
         deck.add(new Card("Dracolich", 10, EVIL));
         deck.add(new Card("Bahamut", 13, GOOD));
-
+        
         return deck;
 
     }

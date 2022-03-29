@@ -5,6 +5,7 @@ import com.example.teamproject.game.infoMsg.GameInfo;
 
 public class TdaComputerPlayer extends GameComputerPlayer {
 
+    private TdaGameState tda;
     /**
      * constructor
      *

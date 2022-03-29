@@ -352,11 +352,10 @@
         android:layout_height="80dp"
         android:layout_marginStart="5dp"
         android:layout_weight="1"
-        android:backgroundTint="#C34A4A"
+        android:background="#C83333"
         android:text="Not your turn"
         app:layout_constraintBottom_toTopOf="@+id/playerHandText"
-        app:layout_constraintStart_toEndOf="@+id/playerHandLayout"
-        app:strokeColor="#8BC34A" />
+        app:layout_constraintStart_toEndOf="@+id/playerHandLayout" />
 
     <TextView
         android:id="@+id/hoardText"
@@ -529,7 +528,6 @@
         android:id="@+id/selectCardPlay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="#AAAAAA"
         android:text="Play"
         android:visibility="invisible"
         app:layout_constraintEnd_toStartOf="@+id/cardZoom"
