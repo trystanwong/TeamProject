@@ -464,7 +464,7 @@ public class TdaGameState extends GameState{
                     currentStakes += strength;
                     for(int i = 0; i < 4; i++){
                         hoards[i]-=antePile[player].getStrength();
-                        
+
                     }
                 }
                 else if(gamePhase == ROUND) {
