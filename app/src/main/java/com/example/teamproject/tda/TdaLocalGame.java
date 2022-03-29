@@ -13,12 +13,13 @@ public class TdaLocalGame extends LocalGame {
      */
     public TdaLocalGame() {
         tda = new TdaGameState();
-        System.out.println(tda.getHandSize(1));
+
     }
 
     @Override
     protected void sendUpdatedStateTo(GamePlayer p) {
         TdaGameState update = new TdaGameState(tda);
+        tda.setNames(super.playerNames);
         p.sendInfo(update);
     }
 
@@ -55,6 +56,7 @@ public class TdaLocalGame extends LocalGame {
     @Override
     protected boolean makeMove(GameAction action) {
 
+        //forfeit action
         if (action instanceof TdaForfeitAction){
             tda.forfeit();
             tda.setGamePhase(5);
@@ -66,7 +68,19 @@ public class TdaLocalGame extends LocalGame {
 
             //currently selected card
             int selectedIndex = tda.getSelectedCardIndex();
-            Card c = tda.getBoard().get(selectedIndex);
+            int currentPlayer = tda.getCurrentPlayer();
+
+            //dumb AI just plays the first card in their hand.
+            if(currentPlayer == 1){
+                tda.playCard(1,0);
+                tda.setCurrentPlayer(0);
+            }
+
+            int hoard = tda.getHoard(tda.getCurrentPlayer());
+            int stakes = tda.getCurrentStakes();
+            Card c = tda.getHandCard(currentPlayer,selectedIndex);
+
+            String cardName = c.getName();
 
             if(tda.getFlightSize(tda.getCurrentPlayer())>=3){
                 //grey the play button so the user knows not to press it
@@ -77,11 +91,18 @@ public class TdaLocalGame extends LocalGame {
                 tda.setPlayButton(false);
                 return false;
             }
-            else{
+            else if(currentPlayer==0){
                 tda.setPlayButton(true);
                 tda.playCard(tda.getCurrentPlayer(), selectedIndex);
+
                 //if the card has a power
-                //c.powerTrigger(c);
+                switch(cardName){
+                    case "Black Dragon":
+                        tda.setHoard(currentPlayer,hoard+2);
+                        tda.setStakes(stakes-2);
+                        break;
+                }
+                tda.setCurrentPlayer(1);
                 return true;
             }
         }
@@ -89,15 +110,25 @@ public class TdaLocalGame extends LocalGame {
         //select card action
         if( action instanceof TdaSelectCardAction){
 
-            tda.selectCard();
+            //tda.selectCard();
 
             int selectedIndex = ((TdaSelectCardAction) action).getIndex();
+            System.out.println(selectedIndex);
+
+            boolean isFlight = ((TdaSelectCardAction) action).getPlacement();
+
+            Card c = new Card();
+            if(!isFlight){
+                c = tda.getHandCard(tda.getCurrentPlayer(),selectedIndex);
+            }
+            if(isFlight){
+                c = tda.getFlightCard(0,selectedIndex);
+            }
+
             tda.setSelectedCardIndex(selectedIndex);
+            tda.setSelectedCard(tda.getCurrentPlayer(),c);
 
-            Card c = tda.getBoard().get(selectedIndex);
             System.out.println(c);
-            tda.setSelectedCard(new Card(c));
-
 
             if(c.getPlacement()==c.HAND) {
                 tda.setPlayButton(true);

@@ -16,26 +16,31 @@ import com.example.teamproject.game.infoMsg.GameInfo;
 public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListener,View.OnTouchListener {
 
     // These variables will reference widgets that will be modified during play
-    private TextView[] hoards = null;
-    private TextView[] handSizes = null;
 
-    private TextView deckSize = null;
+    private TextView[] hoards = null; //player hoards
+    private TextView stakes = null;
 
-    private ImageView[][] flights = null;
-    private ImageView[] hand = null;
+    private TextView gameText = null;
+    private TextView[] names = null;
+
+    private TextView[] handSizes = null; //each player's hand size
+
+    private TextView deckSize = null; //remaining cards in the deck
+
+    private ImageView[][] flights = null; //all player flights
+    private ImageView[] hand = null; //human player's hand
+    private ImageView[] antePile = null; //ante pile
     private ArrayList<ImageView> board = null;
 
+    private ImageView zoom = null; //enlarged version of a selected card
 
-    private ImageView zoom = null;
+    private Button[] buttons = null; //all buttons viewable to the human player
 
-    private ImageView[] antePile = null;
-
-    private Button[] buttons = null;
-
+    //strength of the enlarged card
     private TextView zoomStrength1 = null;
     private TextView zoomStrength2 = null;
 
-    private TdaGameState tda;
+    private TdaGameState tda; //game state
 
     private GameMainActivity myActivity;
 
@@ -63,6 +68,7 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
             super.flash(Color.RED,100);
         }
         if (info instanceof TdaGameState) {
+
             tda = (TdaGameState)info;
 
             //updating all hand sizes
@@ -74,15 +80,22 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
             for (int i = 0; i < 4; i++) {
                 String currentHoard = Integer.toString(tda.getHoard(i));
                 hoards[i].setText(currentHoard);
-                System.out.println(currentHoard);
             }
 
+            System.out.println(tda.getCurrentPlayer());
+
+            //stakes
+            stakes.setText(Integer.toString(tda.getCurrentStakes()));
+
+            //can the player end their turn
             if(tda.getCurrentPlayer()==playerNum){
                 buttons[0].setBackgroundColor(Color.GREEN);
             }
 
-
+            //adding all of the flight cards and ante cards to the game.
             for(int i = 0; i < 4; i++){
+                String anteName = tda.getAnteCard(i).getName();
+                setImage(antePile[i], anteName);
                 for(int j = 0; j < 3;j++){
                     String name = tda.getFlightCard(i,j).getName();
                     setImage(flights[i][j],name);
@@ -92,27 +105,39 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
             }
 
             for(int i = 0; i < 10; i++){
-                String name = tda.getHandCard(i).getName();
+                String name = tda.getHandCard(0,i).getName();
                 setImage(hand[i],name);
                 board.add(hand[i]);
                 hand[i].setOnTouchListener(this);
             }
 
-        }
-
-        //If its this human player's turn;
-        if(tda.getCurrentPlayer()==playerNum){
-            if(tda.getPlayButton()==true){
-                buttons[0].setBackgroundColor(Color.GREEN);
+            //If its this human player's turn;
+            if(tda.getCurrentPlayer()==playerNum){
+                if(tda.getPlayButton()==true){
+                    buttons[0].setBackgroundColor(Color.GREEN);
+                }
+                else if(tda.getPlayButton()==false){
+                    buttons[0].setBackgroundColor(Color.GRAY);
+                }
+                buttons[2].setBackgroundColor(Color.GREEN);
+                buttons[2].setText("END TURN");
             }
-            else if(tda.getPlayButton()==false){
-                buttons[0].setBackgroundColor(Color.GRAY);
+
+            gameText.setText(tda.getGameText());
+
+            switch(tda.getGamePhase()){
+
+                case 2:
+                    gameText.setText("Play a card to your flight.");
+                    break;
             }
-            buttons[2].setBackgroundColor(Color.GREEN);
-            buttons[2].setText("END TURN");
+
+            //setting the text for each player name
+            for(int i = 0; i < 3; i++){
+                names[i].setText(tda.getNames()[i]);
+            }
+
         }
-
-
     }
 
     @Override
@@ -124,6 +149,19 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
         activity.setContentView(R.layout.activity_main);
 
         //Initialize the widget reference member variables
+
+        //current stakes
+        stakes = activity.findViewById(R.id.stakesValue);
+
+        //Current Game Text to tell the player what to do.
+        gameText = activity.findViewById(R.id.gameText);
+
+        //all names
+        names = new TextView[3];
+        names[0] = activity.findViewById(R.id.player1Text);
+        names[1] = activity.findViewById(R.id.player2Text);
+        names[2] = activity.findViewById(R.id.player3Text);
+
 
         //hand sizes
         handSizes[0] = activity.findViewById(R.id.handSize1);
@@ -154,8 +192,6 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
         flights[3][1] = activity.findViewById(R.id.player3Flight1);
         flights[3][2] = activity.findViewById(R.id.player3Flight2);
 
-
-
         hand = new ImageView[10];
         hand[0] = activity.findViewById(R.id.playerHand1);
         hand[1] = activity.findViewById(R.id.playerHand2);
@@ -167,6 +203,13 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
         hand[7] = activity.findViewById(R.id.playerHand8);
         hand[8] = activity.findViewById(R.id.playerHand9);
         hand[9] = activity.findViewById(R.id.playerHand10);
+
+        antePile = new ImageView[4];
+        antePile[0] = activity.findViewById(R.id.ante1);
+        antePile[1] = activity.findViewById(R.id.ante2);
+        antePile[2] = activity.findViewById(R.id.ante3);
+        antePile[3] = activity.findViewById(R.id.ante4);
+
 
         board = new ArrayList<>();
 
@@ -269,7 +312,7 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
 
         //play button is pressed
         if(view == buttons[0]){
-            Card c = new Card(tda.getSelectedCard());
+            Card c = new Card(tda.getSelectedCard(playerNum));
             super.game.sendAction(new TdaPlayCardAction(this));
             if(c.getName()!=null){
                 board.remove(c);
@@ -279,9 +322,6 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
             zoomStrength2.setVisibility(View.INVISIBLE);
             buttons[0].setVisibility(View.INVISIBLE);
             buttons[1].setVisibility(View.INVISIBLE);
-        }
-        if(view == buttons[2]) {
-            //super.game.sendAction(new TdaPlayCardAction(this));
         }
 
     }
@@ -305,16 +345,15 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
                   zoom.setVisibility(View.VISIBLE);
                   zoomStrength1.setVisibility(View.VISIBLE);
                   zoomStrength2.setVisibility(View.VISIBLE);
-                  int index = board.indexOf(flights[i][j]);
-                  super.game.sendAction(new TdaSelectCardAction(this,index));
+                  super.game.sendAction(new TdaSelectCardAction(this,j,true));
               }
             }
          }
 
         for(int i = 0; i< tda.getHandSize(0); i++){
             if(view == hand[i]) {
-                String strength = Integer.toString(tda.getHandCard(i).getStrength());
-                String name = tda.getHandCard(i).getName();
+                String strength = Integer.toString(tda.getHandCard(0,i).getStrength());
+                String name = tda.getHandCard(0,i).getName();
                 setImage(zoom,name);
                 buttons[0].setVisibility(View.VISIBLE);
                 buttons[1].setVisibility(View.VISIBLE);
@@ -323,8 +362,7 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
                 zoom.setVisibility(View.VISIBLE);
                 zoomStrength1.setVisibility(View.VISIBLE);
                 zoomStrength2.setVisibility(View.VISIBLE);
-                int index = board.indexOf(hand[i]);
-                super.game.sendAction(new TdaSelectCardAction(this,index));
+                super.game.sendAction(new TdaSelectCardAction(this,i,false));
 
             }
         }

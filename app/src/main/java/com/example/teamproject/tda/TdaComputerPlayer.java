@@ -5,7 +5,6 @@ import com.example.teamproject.game.infoMsg.GameInfo;
 
 public class TdaComputerPlayer extends GameComputerPlayer {
 
-    private TdaGameState tda;
     /**
      * constructor
      *
@@ -17,6 +16,21 @@ public class TdaComputerPlayer extends GameComputerPlayer {
 
     @Override
     protected void receiveInfo(GameInfo info) {
-
+        if(info instanceof TdaGameState) {
+            TdaGameState tda = (TdaGameState) info;
+            if(tda.getCurrentPlayer() != this.playerNum){
+                return;
+            }
+            else{
+                TdaSelectCardAction sca = new TdaSelectCardAction(this,0,false);
+                super.sleep(1000);
+                super.game.sendAction(sca);
+                TdaPlayCardAction pca = new TdaPlayCardAction(this);
+                super.game.sendAction(pca);
+            }
+        }
+        else{
+            return;
+        }
     }
 }
