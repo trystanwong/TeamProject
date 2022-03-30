@@ -41,6 +41,7 @@ public class TdaGameState extends GameState{
     //choices triggered from cards
     public String choice1;
     public String choice2;
+    public String[][] choices;
 
     private int numCardsInDeck; //cards remaining in the deck
     private int numCardsOnBoard; //number cards that are visible to every player
@@ -83,9 +84,31 @@ public class TdaGameState extends GameState{
 
         names = new String[4];
 
+
+
+        //initializing the choices array;
         choice1 = "";
         choice2 = "";
+        choices = new String[3][2];
+        for(int i = 0; i<3; i++){
+            for(int j = 0; j<2; j++){
+                choices[i][j] = "";
+            }
+        }
+        //blue dragon
+        choices[0][0] = "Steal 1 Gold from the stakes";
+        choices[0][1] = "Opponent(s) pay that much gold to the stakes.";
 
+        //green dragon
+        choices[1][0] = "Give Weakest Dragon to Opponent";
+        choices[1][1] = "Pay 5 gold to Opponent";
+
+        //brass dragon
+        choices[2][0] = "Give Strongest Good Dragon to Opponent";
+        choices[2][1] = "Give 5 Gold to Opponent";
+
+
+        //Game starts in an ante
         gameText = "Choose an Ante Card";
 
         //setting up the id of each player (placeholder for player class)
@@ -177,10 +200,10 @@ public class TdaGameState extends GameState{
         names = new String[4];
         names = tdaGameStateCopy.names;
 
+        choices = new String[3][2];
+        choices = tdaGameStateCopy.choices;
         choice1 = tdaGameStateCopy.choice1;
         choice2 = tdaGameStateCopy.choice2;
-
-
 
         this.gameText = tdaGameStateCopy.gameText;//copying the game text
 
@@ -608,13 +631,6 @@ public class TdaGameState extends GameState{
         return hoards[index];
     }
 
-    /**
-     * returns the number of cards on the board
-     * @return
-     */
-    public int getBoardSize() {
-        return boardCards.size();
-    }
 
     //getter for the game text
     public String getGameText(){
@@ -656,55 +672,39 @@ public class TdaGameState extends GameState{
         flights[player][index] = new Card(c);
     }
 
+    //getter for a set of choices
+    public String[][] getChoices(){
+        return choices;
+    }
+
+    public String getChoice(int index, int num){
+        return choices[index][num];
+    }
+
+    public int isRoundLeader() {
+        int strength = 0;
+        int highestStrength = 0;
+        int strongestAntePlayer = 0;
+        for (int i = 0; i < 2; i++) {
+            strength = antePile[i].getStrength();
+            if (strength > highestStrength) {
+                strongestAntePlayer = i;
+            }
+        }
+        return strongestAntePlayer;
+    }
+
+
     public String getChoice1(){
         return choice1;
     }
     public String getChoice2(){return choice2;}
+
     public void setChoice1(String s){
         choice1 = s;
     }
     public void setChoice2(String s){
         choice2 = s;
     }
-
-    public void drawCard(int player) {
-        Card newCard = randomCard();
-        hands[player][getHandSize(player) + 1] = newCard;
-    }
-
-    public void addCard(int player, Card card) {
-        hands[player][getHandSize(player) + 1] = card;
-    }
-
-    /**
-    public void discardCard(int player, Card card) {
-        hands[player][getHandSize(player) - 1] = card;
-    }
-    */
-
-    /**
-        isRoundLeader
-        checks to see which player put the ante card with the highest strength
-        to make them the round leader
-     */
-    public boolean isRoundLeader() {
-        int strength = 0;
-        int highestStrength = 0;
-        int strongestAnteCard = 0;
-        for (int i = 0; i < 2; i++) {
-            for (int j = 0; j < antePile.length; j++) {
-                strength = getAnteCard(i).getStrength();
-                if (strength > highestStrength) {
-                    highestStrength = strength;
-                    strongestAnteCard = i;
-                }
-            }
-        }
-        if (strongestAnteCard == getCurrentPlayer()) {
-            return true;
-        } else { return false; }
-
-    }
-
 }
 
