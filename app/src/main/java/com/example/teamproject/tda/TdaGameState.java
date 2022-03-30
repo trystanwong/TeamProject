@@ -666,5 +666,14 @@ public class TdaGameState extends GameState{
     public void setChoice2(String s){
         choice2 = s;
     }
+
+    public void drawCard(int player) {
+        Card newCard = randomCard();
+        hands[player][getHandSize(player) + 1] = newCard;
+    }
+
+    public void addCard(int player, Card card) {
+        hands[player][getHandSize(player) + 1] = card;
+    }
 }
 
