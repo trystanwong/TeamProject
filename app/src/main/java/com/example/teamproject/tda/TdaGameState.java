@@ -675,5 +675,36 @@ public class TdaGameState extends GameState{
     public void addCard(int player, Card card) {
         hands[player][getHandSize(player) + 1] = card;
     }
+
+    /**
+    public void discardCard(int player, Card card) {
+        hands[player][getHandSize(player) - 1] = card;
+    }
+    */
+
+    /**
+        isRoundLeader
+        checks to see which player put the ante card with the highest strength
+        to make them the round leader
+     */
+    public boolean isRoundLeader() {
+        int strength = 0;
+        int highestStrength = 0;
+        int strongestAnteCard = 0;
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < antePile.length; j++) {
+                strength = getAnteCard(i).getStrength();
+                if (strength > highestStrength) {
+                    highestStrength = strength;
+                    strongestAnteCard = i;
+                }
+            }
+        }
+        if (strongestAnteCard == getCurrentPlayer()) {
+            return true;
+        } else { return false; }
+
+    }
+
 }
 

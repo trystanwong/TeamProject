@@ -216,30 +216,51 @@ public class TdaLocalGame extends LocalGame {
 
                         //Pay 1 gold to the stakes. Draw a card for each player with a flight stronger than yours
                         case "The Fool":
+                            tda.setHoard(tda.getCurrentPlayer(), hoard - 1);
+
                             break;
 
                         //Pay 1 gold to the stakes. The power of each good dragon in your flight triggers
                         case "The Princess":
+                            tda.setHoard(tda.getCurrentPlayer(), hoard - 1);
+
                             break;
 
                         //Pay 1 gold to the stakes. You are the leader of the next round of this gambit instead of any other player.
                         case "The Priest":
+                            tda.setHoard(tda.getCurrentPlayer(), hoard - 1);
+
                             break;
 
                         //Pay 1 gold to the stakes. The player with the weakest flight wins the gambit instead of the player with the strongest flight.
                         case "The Druid":
+                            tda.setHoard(tda.getCurrentPlayer(), hoard - 1);
+
                             break;
 
                         //Steal 7 gold from the stakes. Discard a card from your hand
                         case "The Thief":
+                            tda.setHoard(tda.getCurrentPlayer(), hoard + 7);
+                            tda.setStakes(tda.getCurrentStakes() - 7);
+                            if (tda.getCurrentPlayer() < tda.getHandSize(tda.getCurrentPlayer()) - 1) {
+                                for (int i = tda.getCurrentPlayer(); i < tda.getHandSize(tda.getCurrentPlayer()) - 1; i++) {
+                                    tda.setHand(tda.getCurrentPlayer(),i,tda.getHandCard(tda.getCurrentPlayer(),i+1));
+                                }
+                            }
+                            tda.setHand(tda.getCurrentPlayer(),tda.getHandSize(tda.getCurrentPlayer()) -1,new Card());
+                            tda.setHandSize(tda.getCurrentPlayer(),tda.getHandSize(tda.getCurrentPlayer())-1);
                             break;
 
                         //Pay 1 gold to the stakes. Discard a weaker dragon from any flight
                         case "The Dragonslayer":
+                            tda.setHoard(tda.getCurrentPlayer(), hoard - 1);
+
                             break;
 
                         //Pay 1 gold to the stakes. Copy the power of ante card.
                         case "The Archmage":
+                            tda.setHoard(tda.getCurrentPlayer(), hoard - 1);
+
                             break;
 
                         //The opponent with the strongest flight pays you 1 gold. Take a random card from that player's hand.
