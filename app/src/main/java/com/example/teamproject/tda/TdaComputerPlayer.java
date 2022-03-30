@@ -22,15 +22,16 @@ public class TdaComputerPlayer extends GameComputerPlayer {
                 return;
             }
             else{
+
+                //selecting the first card in their hand
                 TdaSelectCardAction sca = new TdaSelectCardAction(this,0,false);
                 super.sleep(1000);
                 super.game.sendAction(sca);
+
+                //playing the first card in their hand
                 TdaPlayCardAction pca = new TdaPlayCardAction(this);
                 super.game.sendAction(pca);
             }
-        }
-        else{
-            return;
         }
     }
 }

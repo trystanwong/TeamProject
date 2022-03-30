@@ -20,6 +20,8 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
     private TextView[] hoards = null; //player hoards
     private TextView stakes = null;
 
+    private Button[] choices = null;
+
     private TextView gameText = null;
     private TextView[] names = null;
 
@@ -125,12 +127,24 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
 
             gameText.setText(tda.getGameText());
 
+            //initializing each of the choice texts available to the player
+            choices[0].setText(tda.getChoice1());
+            choices[0].setOnClickListener(this);
+            choices[1].setText(tda.getChoice2());
+            choices[1].setOnClickListener(this);
+
+
+
             switch(tda.getGamePhase()){
 
                 case 2:
                     gameText.setText("Play a card to your flight.");
                     break;
+                case 3:
+                    gameText.setText("Choose One:");
+                    break;
             }
+
 
             //setting the text for each player name
             for(int i = 0; i < 3; i++){
@@ -155,6 +169,10 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
 
         //Current Game Text to tell the player what to do.
         gameText = activity.findViewById(R.id.gameText);
+
+        choices = new Button[2];
+        choices[0] = activity.findViewById(R.id.firstChoiceText);
+        choices[1] = activity.findViewById(R.id.secondChoiceText);
 
         //all names
         names = new TextView[3];
@@ -324,19 +342,29 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
             buttons[1].setVisibility(View.INVISIBLE);
         }
 
+        //choice buttons
+        if(view instanceof TextView) {
+            for (int k = 0; k < choices.length; k++) {
+                if (view == (choices[k])) {
+                    super.game.sendAction(new TdaChoiceAction(this,k));
+                }
+            }
+        }
+
     }
 
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
 
-        int x = (int)motionEvent.getX();
-        int y = (int)motionEvent.getY();
-
          for(int i = 0; i<4;i++){
             for(int j = 0; j<3; j++){
               if(view == (flights[i][j])) {
+
+                  //identifying what flight card is being selected
                   String strength = Integer.toString(tda.getFlightCard(i,j).getStrength());
                   String name = tda.getFlightCard(i,j).getName();
+
+                  //creating the large version of the flight card
                   setImage(zoom,name);
                   buttons[0].setVisibility(View.VISIBLE);
                   buttons[1].setVisibility(View.VISIBLE);
@@ -345,15 +373,23 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
                   zoom.setVisibility(View.VISIBLE);
                   zoomStrength1.setVisibility(View.VISIBLE);
                   zoomStrength2.setVisibility(View.VISIBLE);
+
+                  //sending the selectCard action to the game.
                   super.game.sendAction(new TdaSelectCardAction(this,j,true));
               }
             }
          }
 
-        for(int i = 0; i< tda.getHandSize(0); i++){
+         //if a card in your hand is selected
+         for(int i = 0; i< tda.getHandSize(0); i++){
+
             if(view == hand[i]) {
+
+                //identifying what hand card is being selected
                 String strength = Integer.toString(tda.getHandCard(0,i).getStrength());
                 String name = tda.getHandCard(0,i).getName();
+
+                //setting the zoomed version of the hand card
                 setImage(zoom,name);
                 buttons[0].setVisibility(View.VISIBLE);
                 buttons[1].setVisibility(View.VISIBLE);
@@ -362,6 +398,8 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
                 zoom.setVisibility(View.VISIBLE);
                 zoomStrength1.setVisibility(View.VISIBLE);
                 zoomStrength2.setVisibility(View.VISIBLE);
+
+                //sending the selectCard action to the game.
                 super.game.sendAction(new TdaSelectCardAction(this,i,false));
 
             }

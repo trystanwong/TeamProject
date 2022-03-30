@@ -38,6 +38,10 @@ public class TdaGameState extends GameState{
     public static final int END_GAMBIT = 4;
     public static final int FORFEIT = 5;
 
+    //choices triggered from cards
+    public String choice1;
+    public String choice2;
+
     private int numCardsInDeck; //cards remaining in the deck
     private int numCardsOnBoard; //number cards that are visible to every player
 
@@ -78,6 +82,9 @@ public class TdaGameState extends GameState{
         canPlay = false;
 
         names = new String[4];
+
+        choice1 = "";
+        choice2 = "";
 
         gameText = "Choose an Ante Card";
 
@@ -169,6 +176,10 @@ public class TdaGameState extends GameState{
         //copying the names
         names = new String[4];
         names = tdaGameStateCopy.names;
+
+        choice1 = tdaGameStateCopy.choice1;
+        choice2 = tdaGameStateCopy.choice2;
+
 
 
         this.gameText = tdaGameStateCopy.gameText;//copying the game text
@@ -368,28 +379,15 @@ public class TdaGameState extends GameState{
      * Choose Option action occurs when certain cards' powers trigger a choice for a player
      * That choice is displayed through the game text
      *
-     * @param chosenPlayer - the player the choice is given to
      * @param player - the player who played the card that triggered a choice
      * @return - true if it's a valid move / false if it's not
      */
-    public boolean chooseOption(int chosenPlayer, int player){
+    public boolean choiceAction(int player){
         if(gamePhase == CHOICE){
 
-            //it's now the chosen player's turn (temporarily until they make a choice)
-            currentPlayer = chosenPlayer;
-
-            //do something (implemented later)
-
-            //its now the original players turn again
-            currentPlayer = player;
-
-            //choice phase is over returns to the round
-            gamePhase = ROUND;
             return true;
         }
-        else{
-            return false;
-        }
+        return false;
     }
 
     /**
@@ -437,9 +435,11 @@ public class TdaGameState extends GameState{
      * See card class for placement of cards
      * @return true if it's a valid move / false if it's not
      */
-    public boolean selectCard(){
-
-        return true;
+    public boolean selectCard(int player){
+        if(player == currentPlayer){
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -451,53 +451,11 @@ public class TdaGameState extends GameState{
     public boolean playCard(int player,int index){
 
         // a player can only play a card if it's their turn
-        if(currentPlayer == player){
-            //removes the card from the hand of the current player
-
-                int size = flightSizes[currentPlayer];
-                int handSize = handSizes[player];
-
-                if (gamePhase == ANTE) {
-                    antePile[player] = new Card(selectedCard[player]);
-                    antePile[player].setPlacement(Card.ANTE);
-                    int strength =  antePile[player].getStrength();
-                    currentStakes += strength;
-                    for(int i = 0; i < 4; i++){
-                        hoards[i]-=antePile[player].getStrength();
-
-                    }
-                }
-                else if(gamePhase == ROUND) {
-                    //adding the card from the hand to the flight
-                    if (size > 0) {
-                        flights[currentPlayer][size] = new Card(selectedCard[player]);
-                        flights[currentPlayer][size].setPlacement(Card.FLIGHT);
-                    }
-                    //if the flight is empty
-                    else if (size == 0) {
-                        flights[currentPlayer][0] = new Card(selectedCard[player]);
-                        flights[currentPlayer][0].setPlacement(Card.FLIGHT);
-                    }
-                    flightSizes[currentPlayer]++;
-                }
-                if (index < handSize - 1) {
-                    for (int i = index; i < handSize - 1; i++) {
-                        hands[currentPlayer][i] = new Card(hands[currentPlayer][i + 1]);
-                    }
-                }
-
-                hands[currentPlayer][handSize - 1] = new Card();
-                handSizes[currentPlayer]--;
-
-                if(gamePhase == ANTE){
-                    if(currentPlayer==1) {
-                        setGamePhase(ROUND);
-                    }
-                }
-
-                return true;
+        if(currentPlayer == player) {
+            return true;
         }
         return false;
+
     }
 
     //setter for the play button boolean
@@ -591,6 +549,10 @@ public class TdaGameState extends GameState{
         return handSizes[index];
     }
 
+    public void setHandSize(int index, int size){
+        handSizes[index] = size;
+    }
+
     /**
      * changing the value of a player's hoard
      * @param hoard
@@ -609,8 +571,16 @@ public class TdaGameState extends GameState{
         return hands[id][index];
     }
 
+    public void setHand(int player, int index, Card c){
+        hands[player][index] = c;
+    }
+
     public Card getAnteCard(int index){
         return antePile[index];
+    }
+
+    public void setAnteCard(int index, Card c){
+        antePile[index] = new Card(c);
     }
 
     /**
@@ -651,12 +621,8 @@ public class TdaGameState extends GameState{
         return gameText;
     }
 
-    /**
-     * returns an arraylist of all the cards visible to the player on the board
-     * @return
-     */
-    public ArrayList<Card> getBoard(){
-        return boardCards;
+    public void setGameText(String s){
+        gameText = s;
     }
 
     public void setSelectedCard(int index, Card c){
@@ -678,8 +644,27 @@ public class TdaGameState extends GameState{
         return flightSizes[player];
     }
 
+    public void setFlightSize(int player, int size){
+        flightSizes[player]=size;
+    }
+
     public Card getFlightCard(int flight, int index) {
         return flights[flight][index];
+    }
+
+    public void setFlight(int player, int index, Card c){
+        flights[player][index] = new Card(c);
+    }
+
+    public String getChoice1(){
+        return choice1;
+    }
+    public String getChoice2(){return choice2;}
+    public void setChoice1(String s){
+        choice1 = s;
+    }
+    public void setChoice2(String s){
+        choice2 = s;
     }
 }
 
