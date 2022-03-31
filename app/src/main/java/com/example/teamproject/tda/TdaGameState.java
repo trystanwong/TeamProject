@@ -37,6 +37,7 @@ public class TdaGameState extends GameState{
     public static final int CHOICE = 3;
     public static final int END_GAMBIT = 4;
     public static final int FORFEIT = 5;
+    public static final int END_ANTE = 6;
 
     //choices triggered from cards
     public String choice1;
@@ -412,7 +413,12 @@ public class TdaGameState extends GameState{
      */
     public boolean choiceAction(int player){
         if(gamePhase == CHOICE){
-
+            return true;
+        }
+        if(gamePhase == END_ANTE){
+            return true;
+        }
+        if(gamePhase == END_GAMBIT){
             return true;
         }
         return false;
@@ -707,6 +713,14 @@ public class TdaGameState extends GameState{
     public void setChoice2(String s){
         choice2 = s;
     }
+
+    public void drawCard(int player) {
+        Card newCard = randomCard();
+        newCard.setPlacement(Card.HAND);
+        hands[player][getHandSize(player)] = new Card(newCard);
+        handSizes[player]+=1;
+    }
+
 
     public Card[] getHands(int index){
         return hands[index];

@@ -60,21 +60,40 @@ public class TdaLocalGame extends LocalGame {
         //sizes of the current players flight and hand
         int size = tda.getFlightSize(player);
         int handSize = tda.getHandSize(player);
-        int stakes = tda.getCurrentStakes();
 
         //
         if (tda.getGamePhase() == tda.ANTE) {
             tda.setAnteCard(player,c);
             Card currentAnte = tda.getAnteCard(player);
             currentAnte.setPlacement(Card.ANTE);
-            int strength =  currentAnte.getStrength();
-                tda.setStakes(stakes+strength);
+
+            //stakes set to first ante card by default
+            int strength = tda.getAnteCard(0).getStrength();
+
+
+            //if the ante card being played is greater than the current stakes
+            //set the stakes to the new strength
+            if(currentAnte.getStrength() > strength){
+                strength = currentAnte.getStrength();
+            }
+            tda.setStakes(2*strength);
+            int stakes = tda.getCurrentStakes();
+            if(tda.getAnteCard(1).getName()!=""){
                 for(int i = 0; i < 4; i++){
                     int hoard = tda.getHoard(i);
-                    tda.setHoard(i,hoard-strength);
+                    tda.setHoard(i,hoard-stakes);
                 }
+                int roundLeader = tda.isRoundLeader();
+                tda.setRoundLeader(roundLeader);
+                tda.setGameText("Player " + roundLeader + " is the Round Leader");
+                tda.setChoice1(tda.getChoice(3,0));
+                tda.setChoice2(tda.getChoice(3,1));
+                tda.setCurrentPlayer(roundLeader);
+                tda.setGamePhase(tda.END_ANTE);
+                sendUpdatedStateTo(players[roundLeader]);
             }
-            else if(tda.getGamePhase() == tda.ROUND) {
+        }
+        else if(tda.getGamePhase() == tda.ROUND) {
                 Card newCard = new Card(c);
                 //adding the card from the hand to the flight
                 tda.setFlight(player,size,newCard);
@@ -83,7 +102,7 @@ public class TdaLocalGame extends LocalGame {
 
                 //if the card has a power, its triggered when played
                 powers(c.getName());
-            }
+        }
             if (index < handSize - 1) {
                 for (int i = index; i < handSize - 1; i++) {
                  tda.setHand(player,i,tda.getHandCard(player,i+1));
@@ -92,18 +111,6 @@ public class TdaLocalGame extends LocalGame {
 
         tda.setHand(player,handSize-1,new Card());
         tda.setHandSize(player,tda.getHandSize(player)-1);
-
-
-
-        if(tda.getGamePhase() == tda.ANTE){
-                if(player==1) {
-                    int roundLeader = tda.isRoundLeader();
-                    tda.setCurrentPlayer(roundLeader);
-                    tda.setRoundLeader(roundLeader);
-                    tda.setGameText("Player " + roundLeader + "is the Round Leader");
-                    tda.setGamePhase(tda.ROUND);
-                }
-            }
 
     }
 
@@ -129,6 +136,7 @@ public class TdaLocalGame extends LocalGame {
                 tda.setChoice2(tda.getChoice(1,1));
                 tda.setCurrentPlayer(opponent);
                 tda.setGamePhase(TdaGameState.CHOICE);
+                sendUpdatedStateTo(players[player]);
                 break;
             case "Blue Dragon":
                 tda.setChoice1(tda.getChoice(0,0));
@@ -335,15 +343,23 @@ public class TdaLocalGame extends LocalGame {
             }
             int hoard = tda.getHoard(player);
             int handSize = tda.getHandSize(player);
-            int strengths = 0;
-            for(int i = 0; i<3; i++){
-                Card c = new Card(tda.randomCard());
-                c.setPlacement(c.HAND);
-                tda.setHand(player,i+1,new Card(c));
+
+            //draw top card add it to hand
+            Card c = new Card(tda.randomCard());
+            tda.setHand(player,1,new Card(c));
+            c.setPlacement(c.HAND);
+            tda.setHandSize(player,handSize+1);
+            int strength = c.getStrength();
+
+            //add cards until player has 4 cards
+            for(int i = 1; i<3; i++){
+                Card d = new Card(tda.randomCard());
+                d.setPlacement(c.HAND);
+                tda.setHand(player,i+1,new Card(d));
                 tda.setHandSize(player,i+2);
-                strengths += c.getStrength();
+
             }
-            tda.setHoard(player,hoard-strengths);
+            tda.setHoard(player,hoard-strength);
             return true;
         }
 
@@ -395,7 +411,7 @@ public class TdaLocalGame extends LocalGame {
                         clearFlights();
                         tda.setChoice1(tda.getChoice(3,0));
                         tda.setChoice2(tda.getChoice(3,1));
-                        tda.setGamePhase(TdaGameState.CHOICE);
+                        tda.setGamePhase(TdaGameState.END_GAMBIT);
 
                         return true;
                     }
@@ -419,7 +435,6 @@ public class TdaLocalGame extends LocalGame {
                        tda.setCurrentPlayer(1);
                        return true;
                     }
-
                     return true;
                 }
 
@@ -428,8 +443,6 @@ public class TdaLocalGame extends LocalGame {
                     tda.setPlayButton(false);
                     return false;
                 }
-
-                //human player plays the selected card
 
                 return true;
             }
@@ -471,6 +484,7 @@ public class TdaLocalGame extends LocalGame {
         }
 
         if(action instanceof TdaChoiceAction) {
+
             if (tda.choiceAction(tda.getCurrentPlayer())) {
 
                 //current stats for each player
@@ -525,10 +539,17 @@ public class TdaLocalGame extends LocalGame {
                         }
                         break;
 
-                    //confirming the end of a gambit
+
+                    //confirming the end of a gambit or end of ante
                     case 3:
-                        tda.setGamePhase(tda.ANTE);
-                        return true;
+                        if(tda.getGamePhase()==tda.END_ANTE){
+                            tda.setGamePhase(tda.ROUND);
+                            return true;
+                        }
+                        else if(tda.getGamePhase()==tda.END_GAMBIT) {
+                            tda.setGamePhase(tda.ANTE);
+                            return true;
+                        }
 
                 }
 

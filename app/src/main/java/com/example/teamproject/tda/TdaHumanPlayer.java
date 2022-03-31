@@ -123,7 +123,6 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
                 }
             }
 
-            gameText.setText(tda.getGameText());
 
             //initializing each of the choice texts available to the player
             choices[0].setText(tda.getChoice1());
@@ -135,7 +134,7 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
             //changing the UI depending on the state of the game
             switch(tda.getGamePhase()){
                 case 1:
-                    gameText.setText("Play a card to your Ante");
+                    gameText.setText("Choose an Ante Card");
                     for(View v : choiceTextBox){
                         v.setVisibility(View.INVISIBLE);
                     }
@@ -148,19 +147,37 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
                     break;
                 case 3:
                     //choice textbox becomes visible if its your turn to choose an option
+                    tda.setGameText("Choose One");
+                    gameText.setText("Choose One");
                     if (tda.getCurrentPlayer() == playerNum) {
-                        gameText.setText(tda.getGameText());
-                        for(View v : choiceTextBox){
+                        for(View v : choiceTextBox) {
                             v.setVisibility(View.VISIBLE);
                         }
                     }
-                    break;
-                default:
+                    else {
+                        for (View v : choiceTextBox) {
+                            v.setVisibility(View.INVISIBLE);
+                        }
+                    }
+                case 4:
+                    if (tda.getCurrentPlayer() == playerNum) {
+                        gameText.setText(tda.getGameText());
+                        for(View v : choiceTextBox) {
+                            v.setVisibility(View.VISIBLE);
+                        }
+                    }
+                    else {
+                        for (View v : choiceTextBox) {
+                            v.setVisibility(View.INVISIBLE);
+                        }
+                    }
+                case 6:
                     gameText.setText(tda.getGameText());
                     for(View v : choiceTextBox){
-                        v.setVisibility(View.INVISIBLE);
+                        v.setVisibility(View.VISIBLE);
                     }
                     break;
+
             }
 
             if(tda.getCurrentPlayer()!=playerNum){
@@ -377,7 +394,7 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
         //choice buttons
         if(view instanceof TextView) {
             for (int k = 0; k < choices.length; k++) {
-                if (view == (choices[k])) {
+                if (view.equals(choices[k])) {
                     super.game.sendAction(new TdaChoiceAction(this,k));
                 }
             }
