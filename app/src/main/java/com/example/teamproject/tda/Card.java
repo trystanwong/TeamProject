@@ -29,9 +29,9 @@ public class Card{
     public static final int DISCARD = 4;
 
     //constant variables for stating what this specific cards type is
-    private static final int GOOD = 0;
-    private static final int EVIL = 1;
-    private static final int MORTAL = 2;
+    public static final int GOOD = 0;
+    public static final int EVIL = 1;
+    public static final int MORTAL = 2;
 
     public Card(){
 
@@ -79,22 +79,8 @@ public class Card{
      *
      * @return String: a String for what the type of card is
      */
-    public String getType() {
-        //A string determining what the type of this certain card is
-        String nameOfType = "";
-
-        if (type == GOOD) {
-            nameOfType = "GoodDragon";
-        }
-        else if (type == EVIL) {
-            nameOfType = "EvilDragon";
-        }
-        else if (type == MORTAL) {
-            nameOfType = "Mortal";
-        }
-
-        //return a String representation of what the name of the type is
-        return nameOfType;
+    public int getType() {
+        return type;
     }
 
     //getter for card's placement

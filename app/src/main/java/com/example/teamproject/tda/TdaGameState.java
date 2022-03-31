@@ -89,8 +89,8 @@ public class TdaGameState extends GameState{
         //initializing the choices array;
         choice1 = "";
         choice2 = "";
-        choices = new String[3][2];
-        for(int i = 0; i<3; i++){
+        choices = new String[4][2];
+        for(int i = 0; i<4; i++){
             for(int j = 0; j<2; j++){
                 choices[i][j] = "";
             }
@@ -106,6 +106,10 @@ public class TdaGameState extends GameState{
         //brass dragon
         choices[2][0] = "Give Strongest Good Dragon to Opponent";
         choices[2][1] = "Give 5 Gold to Opponent";
+
+        //end of gambit
+        choices[3][0] = "OK";
+        choices[3][1] = "";
 
 
         //Game starts in an ante
@@ -200,7 +204,7 @@ public class TdaGameState extends GameState{
         names = new String[4];
         names = tdaGameStateCopy.names;
 
-        choices = new String[3][2];
+        choices = new String[4][2];
         choices = tdaGameStateCopy.choices;
         choice1 = tdaGameStateCopy.choice1;
         choice2 = tdaGameStateCopy.choice2;
@@ -705,6 +709,18 @@ public class TdaGameState extends GameState{
     }
     public void setChoice2(String s){
         choice2 = s;
+    }
+
+    public Card[] getHands(int index){
+        return hands[index];
+    }
+
+    public Card[] getFlight(int index){
+        return flights[index];
+    }
+
+    public Card[][] getFlights(){
+        return flights;
     }
 }
 

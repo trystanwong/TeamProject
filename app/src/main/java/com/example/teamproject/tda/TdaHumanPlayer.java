@@ -25,6 +25,8 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
     private TextView gameText = null;
     private TextView[] names = null;
 
+    private View[]choiceTextBox = null;
+
     private TextView[] handSizes = null; //each player's hand size
 
     private TextView deckSize = null; //remaining cards in the deck
@@ -75,7 +77,7 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
 
             //updating all hand sizes
             for (int i = 0; i < 3; i++) {
-                handSizes[i].setText(Integer.toString(tda.getHandSize(i)));
+                handSizes[i].setText(Integer.toString(tda.getHandSize(i+1)));
             }
 
             //updating all hoard values
@@ -84,14 +86,16 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
                 hoards[i].setText(currentHoard);
             }
 
-            System.out.println(tda.getCurrentPlayer());
-
             //stakes
             stakes.setText(Integer.toString(tda.getCurrentStakes()));
 
             //can the player end their turn
             if(tda.getCurrentPlayer()==playerNum){
                 buttons[0].setBackgroundColor(Color.GREEN);
+            }
+
+            if(tda.getCurrentPlayer()==playerNum&&tda.getHandSize(playerNum)==1){
+                super.game.sendAction(new TdaBuyAction(this));
             }
 
             //adding all of the flight cards and ante cards to the game.
@@ -134,17 +138,39 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
             choices[1].setOnClickListener(this);
 
 
-
+            //changing the UI depending on the state of the game
             switch(tda.getGamePhase()){
-
+                case 1:
+                    gameText.setText("Play a card to your Ante");
+                    for(View v : choiceTextBox){
+                        v.setVisibility(View.INVISIBLE);
+                    }
+                    break;
                 case 2:
                     gameText.setText("Play a card to your flight.");
+                    for(View v : choiceTextBox){
+                        v.setVisibility(View.INVISIBLE);
+                    }
                     break;
                 case 3:
-                    gameText.setText("Choose One:");
+                    //choice textbox becomes visible if its your turn to choose an option
+                    if (tda.getCurrentPlayer() == playerNum) {
+                        gameText.setText(tda.getGameText());
+                        for(View v : choiceTextBox){
+                            v.setVisibility(View.VISIBLE);
+                        }
+                    }
+                    break;
+                default:
+                    for(View v : choiceTextBox){
+                        v.setVisibility(View.INVISIBLE);
+                    }
                     break;
             }
 
+            if(tda.getCurrentPlayer()!=playerNum){
+                gameText.setText("Opponent is thinking...");
+            }
 
             //setting the text for each player name
             for(int i = 0; i < 3; i++){
@@ -170,9 +196,18 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
         //Current Game Text to tell the player what to do.
         gameText = activity.findViewById(R.id.gameText);
 
+        //choice buttons
         choices = new Button[2];
         choices[0] = activity.findViewById(R.id.firstChoiceText);
         choices[1] = activity.findViewById(R.id.secondChoiceText);
+
+        //choice text box
+        choiceTextBox = new View[4];
+        choiceTextBox[0] = activity.findViewById(R.id.orText);
+        choiceTextBox[1] = activity.findViewById(R.id.gameChoiceLayout);
+        choiceTextBox[2] = activity.findViewById(R.id.firstChoiceText);
+        choiceTextBox[3] = activity.findViewById(R.id.secondChoiceText);
+
 
         //all names
         names = new TextView[3];
@@ -182,14 +217,14 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
 
 
         //hand sizes
-        handSizes[0] = activity.findViewById(R.id.handSize1);
-        handSizes[1] = activity.findViewById(R.id.handSize2);
+        handSizes[1] = activity.findViewById(R.id.handSize1);
+        handSizes[0] = activity.findViewById(R.id.handSize2);
         handSizes[2] = activity.findViewById(R.id.handSize3);
 
         hoards = new TextView[4];
         hoards[0] = activity.findViewById(R.id.hoardValue);
-        hoards[1] = activity.findViewById(R.id.hoard1);
-        hoards[2] = activity.findViewById(R.id.hoard2);
+        hoards[2] = activity.findViewById(R.id.hoard1);
+        hoards[1] = activity.findViewById(R.id.hoard2);
         hoards[3] = activity.findViewById(R.id.hoard3);
 
         flights = new ImageView[4][3];
@@ -198,18 +233,20 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
         flights[0][1] = activity.findViewById(R.id.player0Flight1);
         flights[0][2] = activity.findViewById(R.id.player0Flight2);
 
-        flights[1][0] = activity.findViewById(R.id.player1Flight0);
-        flights[1][1] = activity.findViewById(R.id.player1Flight1);
-        flights[1][2] = activity.findViewById(R.id.player1Flight2);
+        flights[2][0] = activity.findViewById(R.id.player1Flight0);
+        flights[2][1] = activity.findViewById(R.id.player1Flight1);
+        flights[2][2] = activity.findViewById(R.id.player1Flight2);
 
-        flights[2][0] = activity.findViewById(R.id.player2Flight0);
-        flights[2][1] = activity.findViewById(R.id.player2Flight1);
-        flights[2][2] = activity.findViewById(R.id.player2Flight2);
+        //opponent across from human player;
+        flights[1][0] = activity.findViewById(R.id.player2Flight0);
+        flights[1][1] = activity.findViewById(R.id.player2Flight1);
+        flights[1][2] = activity.findViewById(R.id.player2Flight2);
 
         flights[3][0] = activity.findViewById(R.id.player3Flight0);
         flights[3][1] = activity.findViewById(R.id.player3Flight1);
         flights[3][2] = activity.findViewById(R.id.player3Flight2);
 
+        //players hand
         hand = new ImageView[10];
         hand[0] = activity.findViewById(R.id.playerHand1);
         hand[1] = activity.findViewById(R.id.playerHand2);
