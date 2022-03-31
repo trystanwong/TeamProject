@@ -480,7 +480,7 @@
         app:layout_constraintStart_toStartOf="@+id/antePileLayout" />
 
     <TextView
-        android:id="@+id/menuText"
+        android:id="@+id/forfeit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"

@@ -5,20 +5,22 @@ import com.example.teamproject.game.actionMsg.GameAction;
 
 public class TdaSelectCardAction extends GameAction {
     private int index;
-    private boolean flight;
+    private int placement;
     /**
      * constructor for GameAction
      *
      * @param player the player who created the action
+     * @param i - index of the card selected
+     * @param place- is the card in the players hand
      */
-    public TdaSelectCardAction(GamePlayer player,int i, boolean f) {
+    public TdaSelectCardAction(GamePlayer player,int i, int place) {
         super(player);
         index = i;
-        flight = f;
+        placement = place;
     }
 
-    public boolean getPlacement(){
-        return flight;
+    public int getPlacement(){
+        return placement;
     }
 
     public int getIndex(){

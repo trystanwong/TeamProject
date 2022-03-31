@@ -97,6 +97,8 @@ public class TdaGameState extends GameState{
             }
         }
 
+        //ALL POSSIBLE CARDS WITH CHOICES IN THE GAME:
+
         //blue dragon
         choices[0][0] = "Steal 1 Gold from the stakes";
         choices[0][1] = "Opponent(s) pay that much gold to the stakes.";
@@ -137,7 +139,10 @@ public class TdaGameState extends GameState{
         //initializing all of the arrays found in the game state
         selectedCard = new Card[4];
 
+        //selected index defaulted to the first card
         selectedCardIndex = 0;
+
+        //initializing all card arrays
         flights = new Card[4][3];
         flightSizes = new int[4];
         hands = new Card[4][10];
@@ -146,6 +151,7 @@ public class TdaGameState extends GameState{
         antePile = new Card[4];
 
         boardCards = new ArrayList<>();
+
         //setting all hands and flights to blank cards and setting all hoards to 50;
         for(int i = 0; i < 4; i++){
             hoards[i] = 50;
@@ -361,7 +367,7 @@ public class TdaGameState extends GameState{
     public Card randomCard(){
 
         //seed set to 65 to get the same set of "random" cards every time for testing
-        Random r = new Random(65);
+        Random r = new Random();
         int random = r.nextInt(numCardsInDeck);
         Card newCard = deck.get(random);
 

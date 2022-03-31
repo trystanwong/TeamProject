@@ -18,13 +18,15 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
     // These variables will reference widgets that will be modified during play
 
     private TextView[] hoards = null; //player hoards
-    private TextView stakes = null;
+    private TextView stakes = null; //the current stakes
 
-    private Button[] choices = null;
+    private Button[] choices = null; //the buttons for each choice a player can make
 
-    private TextView gameText = null;
-    private TextView[] names = null;
+    private TextView gameText = null; //the game text to tell the player what to do
 
+    private TextView[] names = null;//player names
+
+    //all the views that make up the choice text box in the middle of the screen
     private View[]choiceTextBox = null;
 
     private TextView[] handSizes = null; //each player's hand size
@@ -34,7 +36,7 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
     private ImageView[][] flights = null; //all player flights
     private ImageView[] hand = null; //human player's hand
     private ImageView[] antePile = null; //ante pile
-    private ArrayList<ImageView> board = null;
+
 
     private ImageView zoom = null; //enlarged version of a selected card
 
@@ -43,6 +45,8 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
     //strength of the enlarged card
     private TextView zoomStrength1 = null;
     private TextView zoomStrength2 = null;
+
+    private TextView forfeit = null;
 
     private TdaGameState tda; //game state
 
@@ -90,7 +94,12 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
             stakes.setText(Integer.toString(tda.getCurrentStakes()));
 
 
-            if(tda.getCurrentPlayer()==playerNum&&tda.getHandSize(playerNum)==1){
+            //forfeit button
+            forfeit.setOnTouchListener(this);
+
+
+            //player has to buy cards if they only have 1 card left in their hand
+            if(tda.getCurrentPlayer()==playerNum&&tda.getHandSize(playerNum)<=1){
                 super.game.sendAction(new TdaBuyAction(this));
             }
 
@@ -98,10 +107,10 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
             for(int i = 0; i < 4; i++){
                 String anteName = tda.getAnteCard(i).getName();
                 setImage(antePile[i], anteName);
+                antePile[i].setOnTouchListener(this);
                 for(int j = 0; j < 3;j++){
                     String name = tda.getFlightCard(i,j).getName();
                     setImage(flights[i][j],name);
-                    board.add(flights[i][j]);
                     flights[i][j].setOnTouchListener(this);
                 }
             }
@@ -109,11 +118,11 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
             for(int i = 0; i < 10; i++){
                 String name = tda.getHandCard(0,i).getName();
                 setImage(hand[i],name);
-                board.add(hand[i]);
                 hand[i].setOnTouchListener(this);
             }
 
-            //If its this human player's turn;
+            //If its this human player's turn, and the card is playable,
+            // the play button will be green. gray otherwise
             if(tda.getCurrentPlayer()==playerNum){
                 if(tda.getPlayButton()==true){
                     buttons[0].setBackgroundColor(Color.GREEN);
@@ -147,16 +156,20 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
                     break;
                 case 3:
                     //choice textbox becomes visible if its your turn to choose an option
-                    tda.setGameText("Choose One");
-                    gameText.setText("Choose One");
-                    if (tda.getCurrentPlayer() == playerNum) {
-                        for(View v : choiceTextBox) {
-                            v.setVisibility(View.VISIBLE);
-                        }
-                    }
-                    else {
+
+                    if (tda.getCurrentPlayer() != playerNum) {
+                        tda.setGameText("Opponent is thinking...");
+                        gameText.setText(tda.getGameText());
                         for (View v : choiceTextBox) {
                             v.setVisibility(View.INVISIBLE);
+                        }
+                    }
+                    else{
+                        tda.setGameText("Choose One");
+                        gameText.setText("Choose One");
+                        for(View v : choiceTextBox) {
+                            v.setVisibility(View.VISIBLE);
+
                         }
                     }
                 case 4:
@@ -184,7 +197,7 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
                 gameText.setText("Opponent is thinking...");
             }
 
-            //setting the text for each player name
+            //setting the text for each players name
             for(int i = 0; i < 3; i++){
                 names[i].setText(tda.getNames()[i]);
             }
@@ -201,6 +214,10 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
         activity.setContentView(R.layout.activity_main);
 
         //Initialize the widget reference member variables
+
+
+        //forfeit textview
+        forfeit = activity.findViewById(R.id.forfeit);
 
         //current stakes
         stakes = activity.findViewById(R.id.stakesValue);
@@ -277,9 +294,6 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
         antePile[2] = activity.findViewById(R.id.ante3);
         antePile[3] = activity.findViewById(R.id.ante4);
 
-
-        board = new ArrayList<>();
-
         buttons = new Button[2];
         buttons[0] = activity.findViewById(R.id.selectCardPlay);
         buttons[1] = activity.findViewById(R.id.selectCardClose);
@@ -349,7 +363,7 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
             case "The Archmage":
                 iv.setImageResource(R.drawable.hermit);
                 break;
-            case "The Dragon Slayer":
+            case "The DragonSlayer":
                 iv.setImageResource(R.drawable.dragonslayer);
                 break;
             case "The Priest":
@@ -381,9 +395,6 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
         if(view == buttons[0]){
             Card c = new Card(tda.getSelectedCard(playerNum));
             super.game.sendAction(new TdaPlayCardAction(this));
-            if(c.getName()!=null){
-                board.remove(c);
-            }
             zoom.setVisibility(View.INVISIBLE);
             zoomStrength1.setVisibility(View.INVISIBLE);
             zoomStrength2.setVisibility(View.INVISIBLE);
@@ -405,7 +416,29 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
     @Override
     public boolean onTouch(View view, MotionEvent motionEvent) {
 
+        if(view == forfeit){
+            super.game.sendAction(new TdaForfeitAction(this));
+        }
+
          for(int i = 0; i<4;i++){
+             if(view == antePile[i]){
+                 //identifying what flight card is being selected
+                 String strength = Integer.toString(tda.getAnteCard(i).getStrength());
+                 String name = tda.getAnteCard(i).getName();
+
+                 //creating the large version of the flight card
+                 setImage(zoom,name);
+                 buttons[0].setVisibility(View.VISIBLE);
+                 buttons[1].setVisibility(View.VISIBLE);
+                 zoomStrength1.setText(strength);
+                 zoomStrength2.setText(strength);
+                 zoom.setVisibility(View.VISIBLE);
+                 zoomStrength1.setVisibility(View.VISIBLE);
+                 zoomStrength2.setVisibility(View.VISIBLE);
+
+                 //sending the selectCard action to the game.
+                 super.game.sendAction(new TdaSelectCardAction(this,i,2));
+             }
             for(int j = 0; j<3; j++){
               if(view == (flights[i][j])) {
 
@@ -424,7 +457,7 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
                   zoomStrength2.setVisibility(View.VISIBLE);
 
                   //sending the selectCard action to the game.
-                  super.game.sendAction(new TdaSelectCardAction(this,j,true));
+                  super.game.sendAction(new TdaSelectCardAction(this,j,1));
               }
             }
          }
@@ -449,7 +482,7 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
                 zoomStrength2.setVisibility(View.VISIBLE);
 
                 //sending the selectCard action to the game.
-                super.game.sendAction(new TdaSelectCardAction(this,i,false));
+                super.game.sendAction(new TdaSelectCardAction(this,i,0));
 
             }
         }
