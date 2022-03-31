@@ -114,6 +114,8 @@ public class TdaLocalGame extends LocalGame {
         int playerHoard = tda.getHoard(player);
         int opponentHoard = tda.getHoard(opponent);
         int stakes = tda.getCurrentStakes();
+        int playerHandSize = tda.getHandSize(player);
+        int oppHandSize = tda.getHandSize(opponent);
 
         //all card powers
         switch(name){
@@ -135,12 +137,15 @@ public class TdaLocalGame extends LocalGame {
                 tda.setGamePhase(TdaGameState.CHOICE);
                 sendUpdatedStateTo(players[player]);
                 break;
-
             //The opponent with the strongest flight chooses either to give you a stronger good dragon
             //or pay you 5 gold
             case "Brass Dragon":
+                tda.setChoice1(tda.getChoice(2,0));
+                tda.setChoice2(tda.getChoice(2,1));
+                //tda.setCurrentPlayer(player);
+                tda.setGamePhase(TdaGameState.CHOICE);
+                sendUpdatedStateTo(players[player]);
                 break;
-
             //Put the two weakest ante cards into your hand
             case "Bronze Dragon":
                 break;
@@ -410,6 +415,11 @@ public class TdaLocalGame extends LocalGame {
                         tda.setCurrentPlayer(1);
                         return true;
                     }
+                    else if(tda.getGamePhase()==tda.ANTE){
+                       tda.setCurrentPlayer(1);
+                       return true;
+                    }
+
                     return true;
                 }
 
