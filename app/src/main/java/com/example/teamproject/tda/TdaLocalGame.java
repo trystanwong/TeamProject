@@ -145,11 +145,6 @@ public class TdaLocalGame extends LocalGame {
             //The opponent with the strongest flight chooses either to give you a stronger good dragon
             //or pay you 5 gold
             case "Brass Dragon":
-                tda.setChoice1(tda.getChoice(2,0));
-                tda.setChoice2(tda.getChoice(2,1));
-                //tda.setCurrentPlayer(opponent);
-                tda.setGamePhase(TdaGameState.CHOICE);
-                sendUpdatedStateTo(players[player]);
                 break;
             //Put the two weakest ante cards into your hand
             case "Bronze Dragon":
