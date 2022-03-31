@@ -89,10 +89,6 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
             //stakes
             stakes.setText(Integer.toString(tda.getCurrentStakes()));
 
-            //can the player end their turn
-            if(tda.getCurrentPlayer()==playerNum){
-                buttons[0].setBackgroundColor(Color.GREEN);
-            }
 
             if(tda.getCurrentPlayer()==playerNum&&tda.getHandSize(playerNum)==1){
                 super.game.sendAction(new TdaBuyAction(this));
@@ -125,8 +121,6 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
                 else if(tda.getPlayButton()==false){
                     buttons[0].setBackgroundColor(Color.GRAY);
                 }
-                buttons[2].setBackgroundColor(Color.GREEN);
-                buttons[2].setText("END TURN");
             }
 
             gameText.setText(tda.getGameText());
@@ -162,6 +156,7 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
                     }
                     break;
                 default:
+                    gameText.setText(tda.getGameText());
                     for(View v : choiceTextBox){
                         v.setVisibility(View.INVISIBLE);
                     }
@@ -268,14 +263,14 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
 
         board = new ArrayList<>();
 
-        buttons = new Button[3];
+        buttons = new Button[2];
         buttons[0] = activity.findViewById(R.id.selectCardPlay);
         buttons[1] = activity.findViewById(R.id.selectCardClose);
-        buttons[2] = activity.findViewById(R.id.endTurnButton);
 
         for(Button b : buttons){
             b.setOnClickListener(this);
         }
+
 
         zoom = activity.findViewById(R.id.cardZoom);
         zoomStrength1 = activity.findViewById(R.id.zoomCardStrength1);

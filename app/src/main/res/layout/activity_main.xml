@@ -348,17 +348,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/cardback" />
 
-    <Button
-        android:id="@+id/endTurnButton"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginStart="5dp"
-        android:layout_weight="1"
-        android:background="#C83333"
-        android:text="Not your turn"
-        app:layout_constraintBottom_toTopOf="@+id/playerHandText"
-        app:layout_constraintStart_toEndOf="@+id/playerHandLayout" />
-
     <TextView
         android:id="@+id/hoardText"
         android:layout_width="wrap_content"

@@ -95,6 +95,7 @@ public class TdaGameState extends GameState{
                 choices[i][j] = "";
             }
         }
+
         //blue dragon
         choices[0][0] = "Steal 1 Gold from the stakes";
         choices[0][1] = "Opponent(s) pay that much gold to the stakes.";
@@ -509,10 +510,8 @@ public class TdaGameState extends GameState{
         currentPlayer = num;
     }
 
-    public void setNames(String[] n){
-        for(int i = 0; i<4; i++){
-            names[i]=n[0];
-        }
+    public void setNames(int index, String n){
+        names[index] = n;
     }
 
     public String[] getNames(){
@@ -686,12 +685,10 @@ public class TdaGameState extends GameState{
     }
 
     public int isRoundLeader() {
-        int strength = 0;
-        int highestStrength = 0;
+        int highestStrength = antePile[0].getStrength();
         int strongestAntePlayer = 0;
         for (int i = 0; i < 2; i++) {
-            strength = antePile[i].getStrength();
-            if (strength > highestStrength) {
+            if (antePile[i].getStrength() > highestStrength) {
                 strongestAntePlayer = i;
             }
         }

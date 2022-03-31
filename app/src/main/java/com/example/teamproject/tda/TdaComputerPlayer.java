@@ -3,7 +3,7 @@ package com.example.teamproject.tda;
 import com.example.teamproject.game.GameComputerPlayer;
 import com.example.teamproject.game.infoMsg.GameInfo;
 
-public class TdaComputerPlayer extends GameComputerPlayer {
+public class TdaComputerPlayer extends GameComputerPlayer{
 
     /**
      * constructor
@@ -45,4 +45,5 @@ public class TdaComputerPlayer extends GameComputerPlayer {
             }
         }
     }
+
 }
