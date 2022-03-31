@@ -437,7 +437,9 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
                  zoomStrength2.setVisibility(View.VISIBLE);
 
                  //sending the selectCard action to the game.
-                 super.game.sendAction(new TdaSelectCardAction(this,i,2));
+                 if(tda.getCurrentPlayer()==0) {
+                     super.game.sendAction(new TdaSelectCardAction(this, i, 2));
+                 }
              }
             for(int j = 0; j<3; j++){
               if(view == (flights[i][j])) {
@@ -457,7 +459,9 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
                   zoomStrength2.setVisibility(View.VISIBLE);
 
                   //sending the selectCard action to the game.
-                  super.game.sendAction(new TdaSelectCardAction(this,j,1));
+                  if(tda.getCurrentPlayer()==0) {
+                      super.game.sendAction(new TdaSelectCardAction(this, j, 1));
+                  }
               }
             }
          }
@@ -482,7 +486,9 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
                 zoomStrength2.setVisibility(View.VISIBLE);
 
                 //sending the selectCard action to the game.
-                super.game.sendAction(new TdaSelectCardAction(this,i,0));
+                if(tda.getCurrentPlayer()==0) {
+                    super.game.sendAction(new TdaSelectCardAction(this, i, 0));
+                }
 
             }
         }

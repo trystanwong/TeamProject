@@ -130,10 +130,7 @@ public class TdaLocalGame extends LocalGame {
                 tda.setStakes(stakes-2);
                 break;
             case "Green Dragon":
-                tda.setChoice1(tda.getChoice(1,0));
-                tda.setChoice2(tda.getChoice(1,1));
-                tda.setCurrentPlayer(opponent);
-                tda.setGamePhase(TdaGameState.CHOICE);
+
                 break;
             case "Blue Dragon":
                 break;
@@ -328,6 +325,7 @@ public class TdaLocalGame extends LocalGame {
         int gambitWinner = strongestFlight();
         tda.setGameText("Player "+gambitWinner+" won that gambit!");
         tda.setHoard(gambitWinner,tda.getHoard(gambitWinner)+stakes);
+
         //clears the stakes and flights and tells the player to confirm the
         //end of the gambit.
         tda.setStakes(0);
@@ -341,16 +339,14 @@ public class TdaLocalGame extends LocalGame {
 
         //buy action
         if(action instanceof TdaBuyAction){
+
             int player = tda.getCurrentPlayer();
-            if(tda.getCurrentPlayer() == 1){
-                int num = 0;
-            }
             int hoard = tda.getHoard(player);
             int handSize = tda.getHandSize(player);
 
             //draw top card add it to hand
             Card c = new Card(tda.randomCard());
-            tda.setHand(player,1,new Card(c));
+            tda.setHand(player,handSize,new Card(c));
             c.setPlacement(c.HAND);
             tda.setHandSize(player,handSize+1);
             int strength = c.getStrength();
@@ -386,7 +382,6 @@ public class TdaLocalGame extends LocalGame {
             Card c = tda.getHandCard(currentPlayer,selectedIndex);
             String cardName = c.getName();
 
-
             //can the player play the selected card?
             if(tda.playCard(currentPlayer,selectedIndex)){
 
@@ -412,15 +407,13 @@ public class TdaLocalGame extends LocalGame {
                 //dumb AI just plays the first card in their hand.
                 if(currentPlayer == 1){
                     playCard(1,0,c);
+                    if(tda.getHandSize(currentPlayer)==1){
+                        sendAction(new TdaBuyAction(players[currentPlayer]));
+                    }
                     if(tda.getFlightSize(currentPlayer)==3){
                         if(tda.getFlightSize(opponent)==3){
                             gambitWinner();
-
                         }
-                    }
-                    if(c.getName().equals("Blue Dragon")) {
-                        tda.setCurrentPlayer(0);
-                        return true;
                     }
                     tda.setCurrentPlayer(opponent);
                     return true;
@@ -429,22 +422,24 @@ public class TdaLocalGame extends LocalGame {
                 if(currentPlayer==0){
                     tda.setPlayButton(true);
                     playCard(currentPlayer,selectedIndex,c);
+                    if(tda.getHandSize(currentPlayer)==1){
+                        sendAction(new TdaBuyAction(players[currentPlayer]));
+                    }
                     if(tda.getFlightSize(currentPlayer)==3){
                         if(tda.getFlightSize(opponent)==3){
                             gambitWinner();
+                            sendUpdatedStateTo(players[0]);
+                            return true;
                         }
                     }
                     if(tda.getGamePhase()==tda.ANTE){
                         tda.setCurrentPlayer(opponent);
                         return true;
                     }
-                    if(c.getName().equals("Blue Dragon")) {
-                        tda.setCurrentPlayer(0);
-                        return true;
-                    }
                     tda.setCurrentPlayer(opponent);
                     return true;
                 }
+
 
                 //if card is in a flight, the player cant play it
                 if(c.getPlacement()!=c.HAND){
@@ -454,12 +449,13 @@ public class TdaLocalGame extends LocalGame {
 
                 return true;
             }
+            return false;
         }
 
         //select card action
         if( action instanceof TdaSelectCardAction){
 
-            if(true) {
+            if(tda.selectCard(tda.getCurrentPlayer())) {
 
                 int selectedIndex = ((TdaSelectCardAction) action).getIndex();
 
@@ -491,6 +487,7 @@ public class TdaLocalGame extends LocalGame {
             }
         }
 
+        //player made a choice
         if(action instanceof TdaChoiceAction) {
 
             if (tda.choiceAction(tda.getCurrentPlayer())) {
