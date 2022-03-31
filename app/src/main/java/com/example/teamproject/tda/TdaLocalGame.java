@@ -136,11 +136,6 @@ public class TdaLocalGame extends LocalGame {
                 tda.setGamePhase(TdaGameState.CHOICE);
                 break;
             case "Blue Dragon":
-                tda.setChoice1(tda.getChoice(0,0));
-                tda.setChoice2(tda.getChoice(0,1));
-                tda.setCurrentPlayer(player);
-                tda.setGamePhase(TdaGameState.CHOICE);
-                sendUpdatedStateTo(players[player]);
                 break;
             //The opponent with the strongest flight chooses either to give you a stronger good dragon
             //or pay you 5 gold
