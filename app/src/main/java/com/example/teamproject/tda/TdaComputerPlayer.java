@@ -36,10 +36,8 @@ public class TdaComputerPlayer extends GameComputerPlayer{
             else{
                 //computer waits a second before making decision
                 super.sleep(1000);
-
                 //if the AI has to make a choice
                 if(tda.getGamePhase()==tda.CHOICE){
-
                     //dumb AI always selects first choice
                     TdaChoiceAction ca = new TdaChoiceAction(this,0);
                     super.game.sendAction(ca);
