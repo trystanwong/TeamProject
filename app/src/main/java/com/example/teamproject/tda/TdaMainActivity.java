@@ -32,10 +32,9 @@ public class TdaMainActivity extends GameMainActivity {
     /**
      * Create the default configuration for this game:
      * - one human player vs. one computer player
-     * - minimum of 1 player, maximum of 2
+     * - minimum of 2 players
      *
-     * @return
-     * 		the new configuration object, representing the default configuration
+     * @return the new configuration object, representing the default configuration
      */
     @Override
     public GameConfig createDefaultConfig() {
@@ -43,7 +42,7 @@ public class TdaMainActivity extends GameMainActivity {
         // Define the allowed player types
         ArrayList<GamePlayerType> playerTypes = new ArrayList<GamePlayerType>();
 
-        // Pig has two player types:  human and computer
+        // TDA has two player types:  human and computer
         playerTypes.add(new GamePlayerType("Local Human Player") {
             public GamePlayer createPlayer(String name) {
                 return new TdaHumanPlayer(name);
@@ -53,7 +52,7 @@ public class TdaMainActivity extends GameMainActivity {
                 return new TdaComputerPlayer(name);
             }});
 
-        // Create a game configuration class for Pig:
+        // Create a game configuration class for TDA:
         GameConfig defaultConfig = new GameConfig(playerTypes, 2, 4, "TDA", PORT_NUMBER);
         defaultConfig.addPlayer("Human", 0); // player 1: a human player
         defaultConfig.addPlayer("Computer", 1); // player 2: a computer player

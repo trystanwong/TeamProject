@@ -14,7 +14,7 @@ public class Card{
 
     //instance variables
 
-    private String name;
+    private String name;//name of the card
     private String power;//text found on card
     private int strength;//card strength (1-13)
     private int type;//type of card: (good dragon, evil dragon, or mortal)
