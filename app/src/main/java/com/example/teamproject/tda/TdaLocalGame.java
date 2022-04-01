@@ -4,6 +4,8 @@ import com.example.teamproject.game.GamePlayer;
 import com.example.teamproject.game.LocalGame;
 import com.example.teamproject.game.actionMsg.GameAction;
 
+import java.util.Random;
+
 /**
  *
  * Local Game of TDA
@@ -16,6 +18,7 @@ import com.example.teamproject.game.actionMsg.GameAction;
 public class TdaLocalGame extends LocalGame {
 
     private TdaGameState tda;
+    Random rand = new Random();
 
     /**
      * This constructor creates a new game state
@@ -199,18 +202,42 @@ public class TdaLocalGame extends LocalGame {
 
             //Draw a card for each good dragon in your flight
             case "Gold Dragon":
+                //counter for amount of good dragons
+                int numGoodDragons = 0;
+                //check current players flight to see how many good dragons are within flight
+                for (int i = 0; i < tda.getFlightSize(player); i++) {
+                    if (tda.getFlightCard(player, i).getType() == 0) {
+                        numGoodDragons++;
+                    }
+                }
+                //go through a for loop to draw a card for each good dragon
+                for (int j = 0; j < numGoodDragons; j++) {
+                    tda.drawCard(player);
+                }
                 break;
 
             //Pay 1 gold to the stakes. Draw a card for each player with a flight stronger than yours
             case "The Fool":
+                tda.setHoard(player,playerHoard-1);
+                tda.setStakes(stakes+1);
+                if (strongestFlight() != player) {
+                    tda.drawCard(player);
+                }
                 break;
 
             //Pay 1 gold to the stakes. The power of each good dragon in your flight triggers
             case "The Princess":
+                tda.setHoard(player,playerHoard-1);
+                tda.setStakes(stakes+1);
+                for (int i = 0; i < tda.getFlightSize(player); i++) {
+
+                }
+                switch ()
                 break;
 
             //Pay 1 gold to the stakes. You are the leader of the next round of this gambit instead of any other player.
             case "The Priest":
+
                 break;
 
             //Pay 1 gold to the stakes. The player with the weakest flight wins the gambit instead of the player with the strongest flight.
@@ -222,7 +249,22 @@ public class TdaLocalGame extends LocalGame {
                 break;
 
             //Pay 1 gold to the stakes. Discard a weaker dragon from any flight
-            case "The Dragonslayer":
+            case "The DragonSlayer":
+                //set the strength to the DragonSlayers strength and find the weakest card
+                int theSlayerStrength = 8;
+                boolean weakestCardFound = false;
+                int index = 0;
+                tda.setHoard(player,playerHoard-1);
+                tda.setStakes(stakes+1);
+                while (!weakestCardFound) {
+                    if (tda.getFlightCard(opponent, index).getStrength() < theSlayerStrength) {
+                        weakestCardFound = true;
+                    }
+                    else {
+                        index++;
+                    }
+                }
+                discardCard(opponent, index, 2);
                 break;
 
             //Pay 1 gold to the stakes. Copy the power of ante card.
@@ -231,8 +273,15 @@ public class TdaLocalGame extends LocalGame {
 
             //The opponent with the strongest flight pays you 1 gold. Take a random card from that player's hand.
             case "Red Dragon":
+                //random card from opponents hand
+                int indexOfCard = rand.nextInt(tda.getHandSize(opponent));
+                //if the strength of that players flight is bigger than the opponent do the power
+                if (strongestFlight() != player) {
+                    discardCard(opponent, indexOfCard, 0);
+                    tda.setHoard(player, playerHoard + 1);
+                    tda.setHoard(opponent, opponentHoard - 1);
+                }
                 break;
-
             //Each player with at least one good dragon in their flight draws a card
             case "Silver Dragon":
                 for (int i = 0; i <  tda.getFlightSize(player); i++) {
@@ -252,8 +301,27 @@ public class TdaLocalGame extends LocalGame {
                 break;
             //If any flight includes a mortal, steal 3 gold from the rakes.
             case "White Dragon":
+                boolean mortalFound = false;
+                //check the players flight for mortals
+                for (int i = 0; i < tda.getFlightSize(player); i++) {
+                    if (tda.getFlightCard(player, i).getType() == 2) {
+                        tda.setHoard(tda.getCurrentPlayer(), playerHoard + 3);
+                        tda.setStakes(stakes - 3);
+                        mortalFound = true;
+                        break;
+                    }
+                }
+                if (mortalFound != true) {
+                    //check the opponents flight for mortals
+                    for (int j = 0; j < tda.getFlightSize(opponent); j++) {
+                        if (tda.getFlightCard(opponent, j).getType() == 2) {
+                            tda.setHoard(tda.getCurrentPlayer(), playerHoard + 3);
+                            tda.setStakes(stakes - 3);
+                            break;
+                        }
+                    }
+                }
                 break;
-
         }
     }
 

@@ -311,7 +311,7 @@ public class TdaGameState extends GameState{
     public Card randomCard(){
 
         //seed set to 150000 to get the same set of "random" cards every time for testing
-        Random r = new Random(150000);
+        Random r = new Random(deck);
         int random = r.nextInt(numCardsInDeck);
         Card newCard = deck.get(random);
 
