@@ -44,11 +44,6 @@ public class TdaLocalGame extends LocalGame {
 
     @Override
     protected String checkIfGameOver() {
-        for(int e : tda.getHoards()){
-            if (e <= 0){
-                return "player "+Math.abs(e-1)+" wins!";
-            }
-        }
         if(tda.getGamePhase()==TdaGameState.FORFEIT){
             return "PLAYER FORFEITED";
         }
@@ -63,13 +58,13 @@ public class TdaLocalGame extends LocalGame {
 
         //
         if (tda.getGamePhase() == tda.ANTE) {
+
+            c.setPlacement(Card.ANTE);
             tda.setAnteCard(player,c);
             Card currentAnte = tda.getAnteCard(player);
-            currentAnte.setPlacement(Card.ANTE);
 
             //stakes set to first ante card by default
             int strength = tda.getAnteCard(0).getStrength();
-
 
             //if the ante card being played is greater than the current stakes
             //set the stakes to the new strength
@@ -88,14 +83,14 @@ public class TdaLocalGame extends LocalGame {
                 tda.setGameText("Player " + roundLeader + " is the Round Leader");
                 tda.setChoice1(tda.getChoice(3,0));
                 tda.setChoice2(tda.getChoice(3,1));
-
             }
         }
         else if(tda.getGamePhase() == tda.ROUND) {
                 Card newCard = new Card(c);
+                newCard.setPlacement(newCard.FLIGHT);
+                int placement = newCard.getPlacement();
                 //adding the card from the hand to the flight
                 tda.setFlight(player,size,newCard);
-                tda.getFlightCard(player,size).setPlacement(Card.FLIGHT);
                 tda.setFlightSize(player,tda.getFlightSize(player)+1);
 
                 //if the card has a power, its triggered when played
@@ -220,6 +215,8 @@ public class TdaLocalGame extends LocalGame {
         int opponent = Math.abs(player-1);
         int opponentHandSize = tda.getHandSize(opponent);
         Card c = new Card(tda.getHandCard(player,index));
+        c.setPlacement(placement);
+
 
         if(placement!=2) {
             if (index < handSize - 1) {
@@ -253,7 +250,6 @@ public class TdaLocalGame extends LocalGame {
             case 3:
                 tda.getDeck().add(c);
                 break;
-
         }
     }
 
@@ -374,13 +370,18 @@ public class TdaLocalGame extends LocalGame {
         if (action instanceof TdaPlayCardAction){
 
             //currently selected card
-            int selectedIndex = tda.getSelectedCardIndex();
             int currentPlayer = tda.getCurrentPlayer();
+            int selectedIndex = tda.getSelectedCardIndex(currentPlayer);
             int opponent = Math.abs(currentPlayer-1);
 
             int stakes = tda.getCurrentStakes();
-            Card c = tda.getHandCard(currentPlayer,selectedIndex);
+            Card c = new Card(tda.getSelectedCard(currentPlayer));
             String cardName = c.getName();
+
+            //if card is in a flight, the player cant play it
+            if(c.getPlacement()!=c.HAND){
+                return false;
+            }
 
             //can the player play the selected card?
             if(tda.playCard(currentPlayer,selectedIndex)){
@@ -421,6 +422,7 @@ public class TdaLocalGame extends LocalGame {
 
                 if(currentPlayer==0){
                     tda.setPlayButton(true);
+
                     playCard(currentPlayer,selectedIndex,c);
                     if(tda.getHandSize(currentPlayer)==1){
                         sendAction(new TdaBuyAction(players[currentPlayer]));
@@ -440,13 +442,6 @@ public class TdaLocalGame extends LocalGame {
                     return true;
                 }
 
-
-                //if card is in a flight, the player cant play it
-                if(c.getPlacement()!=c.HAND){
-                    tda.setPlayButton(false);
-                    return false;
-                }
-
                 return true;
             }
             return false;
@@ -464,6 +459,7 @@ public class TdaLocalGame extends LocalGame {
 
                 Card c = new Card();
 
+
                 switch(placement){
                     case 0:
                         c = tda.getHandCard(tda.getCurrentPlayer(), selectedIndex);
@@ -480,9 +476,12 @@ public class TdaLocalGame extends LocalGame {
                 }
 
                 //setting the game state selected card and index
-                tda.setSelectedCardIndex(selectedIndex);
-                tda.setSelectedCard(tda.getCurrentPlayer(), c);
-                System.out.println(c.getName());
+                tda.setSelectedCardIndex(tda.getCurrentPlayer(),selectedIndex);
+                tda.setSelectedCard(tda.getCurrentPlayer(), new Card(c));
+                Card select = tda.getSelectedCard(tda.getCurrentPlayer());
+                System.out.println("Placement:"
+                        + select.getPlacement());
+                System.out.println(select.getName());
                 return true;
             }
         }
@@ -580,7 +579,6 @@ public class TdaLocalGame extends LocalGame {
                         }
 
                 }
-
                 tda.setGamePhase(tda.ROUND);
                 return true;
             }

@@ -51,7 +51,7 @@ public class TdaGameState extends GameState{
     private ArrayList<Card> deck; //current stack of deck
 
     private Card[] selectedCard; //card that's currently selected
-    private int selectedCardIndex; //index of the currently selected card
+    private int selectedCardIndex[]; //index of the currently selected card
 
     private boolean canPlay; //can the selected card be played;
 
@@ -140,7 +140,7 @@ public class TdaGameState extends GameState{
         selectedCard = new Card[4];
 
         //selected index defaulted to the first card
-        selectedCardIndex = 0;
+        selectedCardIndex = new int[2];
 
         //initializing all card arrays
         flights = new Card[4][3];
@@ -646,7 +646,6 @@ public class TdaGameState extends GameState{
         return hoards[index];
     }
 
-
     //getter for the game text
     public String getGameText(){
         return gameText;
@@ -664,11 +663,11 @@ public class TdaGameState extends GameState{
         return new Card(selectedCard[index]);
     }
 
-    public int getSelectedCardIndex(){
-        return selectedCardIndex;
+    public int getSelectedCardIndex(int player){
+        return selectedCardIndex[player];
     }
-    public void setSelectedCardIndex(int index){
-        selectedCardIndex = index;
+    public void setSelectedCardIndex(int player, int index){
+        selectedCardIndex[player] = index;
     }
 
     public int getFlightSize(int player){
