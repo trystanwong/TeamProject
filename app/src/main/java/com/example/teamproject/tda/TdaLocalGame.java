@@ -94,7 +94,6 @@ public class TdaLocalGame extends LocalGame {
                 tda.setFlightSize(player,tda.getFlightSize(player)+1);
 
                 //if the card has a power, its triggered when played
-                powers(c.getName());
         }
             if (index < handSize - 1) {
                 for (int i = index; i < handSize - 1; i++) {
@@ -102,8 +101,11 @@ public class TdaLocalGame extends LocalGame {
                 }
             }
 
+
+
         tda.setHand(player,handSize-1,new Card());
         tda.setHandSize(player,tda.getHandSize(player)-1);
+        powers(c.getName());
 
     }
 
@@ -194,6 +196,20 @@ public class TdaLocalGame extends LocalGame {
 
             //Each player with at least one good dragon in their flight draws a card
             case "Silver Dragon":
+                for (int i = 0; i <  tda.getFlightSize(player); i++) {
+                    if (tda.getFlightCard(player, i).getType() == 0) {
+                        Card c = new Card(tda.randomCard());
+                        c.setPlacement(c.HAND);
+                        tda.drawCard(player);
+                    }
+                }
+                //check the opponents flight for a good dragon
+                for (int j = 0; j <  tda.getFlightSize(opponent); j++) {
+                    if (tda.getFlightCard(opponent, j).getType() == 0) {
+                        tda.drawCard(opponent);
+
+                    }
+                }
                 break;
             //If any flight includes a mortal, steal 3 gold from the rakes.
             case "White Dragon":
@@ -342,8 +358,9 @@ public class TdaLocalGame extends LocalGame {
 
             //draw top card add it to hand
             Card c = new Card(tda.randomCard());
-            tda.setHand(player,handSize,new Card(c));
             c.setPlacement(c.HAND);
+            tda.setHand(player,handSize,new Card(c));
+
             tda.setHandSize(player,handSize+1);
             int strength = c.getStrength();
 
@@ -479,8 +496,7 @@ public class TdaLocalGame extends LocalGame {
                 tda.setSelectedCardIndex(tda.getCurrentPlayer(),selectedIndex);
                 tda.setSelectedCard(tda.getCurrentPlayer(), new Card(c));
                 Card select = tda.getSelectedCard(tda.getCurrentPlayer());
-                System.out.println("Placement:"
-                        + select.getPlacement());
+                System.out.println("Placement:" + select.getPlacement());
                 System.out.println(select.getName());
                 return true;
             }

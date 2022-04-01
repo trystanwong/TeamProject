@@ -163,12 +163,12 @@ public class Card{
         deck.add(new Card("Blue Dragon", 11, EVIL));
 
         //BRASS DRAGONS
-        deck.add(new Card("Brass Dragon", 1, EVIL));
-        deck.add(new Card("Brass Dragon", 2, EVIL));
-        deck.add(new Card("Brass Dragon", 4, EVIL));
-        deck.add(new Card("Brass Dragon", 5, EVIL));
-        deck.add(new Card("Brass Dragon", 7, EVIL));
-        deck.add(new Card("Brass Dragon", 9, EVIL));
+        deck.add(new Card("Brass Dragon", 1, GOOD));
+        deck.add(new Card("Brass Dragon", 2, GOOD));
+        deck.add(new Card("Brass Dragon", 4, GOOD));
+        deck.add(new Card("Brass Dragon", 5, GOOD));
+        deck.add(new Card("Brass Dragon", 7, GOOD));
+        deck.add(new Card("Brass Dragon", 9, GOOD));
 
         //Gold dragons
         deck.add(new Card("Gold Dragon", 2, GOOD));
