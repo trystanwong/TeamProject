@@ -87,7 +87,7 @@ public class TdaGameState extends GameState{
         //ALL POSSIBLE CARDS WITH CHOICES IN THE GAME:
 
         //blue dragon
-        choices[0][0] = "Steal 1 Gold from the stakes";
+        choices[0][0] = "Steal 1 Gold from the stakes for each evil dragon in your flight";
         choices[0][1] = "Opponent(s) pay that much gold to the stakes.";
 
         //green dragon
@@ -311,7 +311,7 @@ public class TdaGameState extends GameState{
     public Card randomCard(){
 
         //seed set to 150000 to get the same set of "random" cards every time for testing
-        Random r = new Random(deck);
+        Random r = new Random();
         int random = r.nextInt(numCardsInDeck);
         Card newCard = deck.get(random);
 
