@@ -6,7 +6,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import java.util.ArrayList;
 
 import com.example.teamproject.R;
 import com.example.teamproject.game.GameHumanPlayer;
