@@ -1,4 +1,6 @@
 package com.example.teamproject.tda;
+import android.widget.ImageView;
+
 import java.util.ArrayList;
 /**
  * Card
@@ -38,7 +40,6 @@ public class Card{
     public static final int MORTAL = 2;
 
     public Card(){
-
         name = "";
         strength = 0;
         type = GOOD;

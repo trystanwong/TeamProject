@@ -301,6 +301,7 @@
             app:srcCompat="@drawable/princess" />
 
     </LinearLayout>
+    /ScrollView >
 
     <LinearLayout
         android:id="@+id/antePileLayout"

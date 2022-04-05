@@ -5,6 +5,7 @@ import com.example.teamproject.game.LocalGame;
 import com.example.teamproject.game.actionMsg.GameAction;
 
 import java.util.Random;
+import java.util.ArrayList;
 
 /**
  *
@@ -15,15 +16,17 @@ import java.util.Random;
  * @author Mohammad Surur
  * @author Marcus Rison
  */
-public class TdaLocalGame extends LocalGame {
+public class TdaLocalGame extends LocalGame implements Runnable{
 
     private TdaGameState tda;
+    private TdaMainActivity mainActivity;
 
     /**
      * This constructor creates a new game state
      */
     public TdaLocalGame() {
         tda = new TdaGameState();
+        mainActivity = new TdaMainActivity();
     }
 
     /**
@@ -40,7 +43,9 @@ public class TdaLocalGame extends LocalGame {
         for(int i = 0; i<2;i++){
             tda.setNames(i,super.playerNames[i]);
         }
+
         p.sendInfo(update);
+
     }
 
     /**
@@ -81,61 +86,60 @@ public class TdaLocalGame extends LocalGame {
      */
     protected void playCard(int player, int index, Card c){
 
-        //sizes of the current players flight and hand
-        int size = tda.getFlightSize(player);
-        int handSize = tda.getHandSize(player);
-
-        //where is the first empty slot in a hand ante or flight?
-        int emptySlot = 0;
-
         //if the game is currently in the ante phase
         if (tda.getGamePhase() == tda.ANTE) {
 
             //set the ante card in the ante pile
             c.setPlacement(Card.ANTE);
-            tda.setAnteCard(player,c);
-            Card currentAnte = tda.getAnteCard(player);
 
-            //stakes set to first ante card by default
-            int strength = tda.getAnteCard(0).getStrength();
-
-            //if the ante card being played is greater than the current stakes
-            //set the stakes to the new strength
-            if(currentAnte.getStrength() > strength){
-                strength = currentAnte.getStrength();
+            if(tda.getAntePile().size()==0){
+                discardCard(player,index,4);
             }
-            tda.setStakes(2*strength);
-            int stakes = tda.getCurrentStakes();
+            else {
 
-            //if all ante cards have been played decide who the round leader is
-            if(tda.getAnteCard(1).getName()!=""){
+                Card currentAnte = tda.getAnteCard(0);
 
-                //taking the ante's from the player's hoards
-                for(int i = 0; i < 4; i++){
-                    int hoard = tda.getHoard(i);
-                    tda.setHoard(i,hoard-strength);
+                //stakes set to first ante card by default
+                int strength = tda.getAnteCard(0).getStrength();
+
+                //if the ante card being played is greater than the current stakes
+                //set the stakes to the new strength
+                if (currentAnte.getStrength() > strength) {
+                    strength = currentAnte.getStrength();
                 }
+                tda.setStakes(2 * strength);
+                discardCard(player, index, 4);
 
-                //deciding the round leader
-                int roundLeader = tda.isRoundLeader();
-                tda.setRoundLeader(roundLeader);
+                //if all ante cards have been played decide who the round leader is
+                if (tda.getAntePile().size()>1){
+                    //taking the ante's from the player's hoards
+                    for (int i = 0; i < 4; i++) {
+                        int hoard = tda.getHoard(i);
+                        tda.setHoard(i, hoard - strength);
+                    }
 
-                //player confirms
-                tda.setGameText("Player " + roundLeader + " is the Round Leader");
-                tda.setChoice1(tda.getChoice(3,0));
-                tda.setChoice2(tda.getChoice(3,1));
+                    //deciding the round leader
+                    int roundLeader = tda.isRoundLeader();
+                    tda.setRoundLeader(roundLeader);
 
+                    //player confirms
+                    tda.setGameText("Player " + roundLeader + " is the Round Leader");
+                    tda.setChoice1(tda.getChoice(3, 0));
+                    tda.setChoice2(tda.getChoice(3, 1));
+
+                }
             }
         }
 
         //if the card is played during a round
         else if(tda.getGamePhase() == tda.ROUND) {
-
             //setting the card in the flight
             Card newCard = new Card(c);
             newCard.setPlacement(newCard.FLIGHT);
             discardCard(player,index,1);
         }
+
+
 
         //if the card has a power and its a round, its triggered when played
         if(tda.getGamePhase()==tda.ROUND) {
@@ -156,8 +160,6 @@ public class TdaLocalGame extends LocalGame {
         int playerHoard = tda.getHoard(player);
         int opponentHoard = tda.getHoard(opponent);
         int stakes = tda.getCurrentStakes();
-        int playerHandSize = tda.getHandSize(player);
-        int oppHandSize = tda.getHandSize(opponent);
 
         //all card powers
         switch(name){
@@ -197,6 +199,7 @@ public class TdaLocalGame extends LocalGame {
 
             //Copy the power of an evil dragon in any flight
             case "Dracolich":
+                tda.setGameText("Choose a card in your opponents flight to copy its power");
                 break;
 
             //Each other player with both good and evil dragons in the same flight pays you 10 gold
@@ -209,7 +212,7 @@ public class TdaLocalGame extends LocalGame {
                 //counter for amount of good dragons
                 int numGoodDragons = 0;
                 //check current players flight to see how many good dragons are within flight
-                for (int i = 0; i < tda.getFlightSize(player); i++) {
+                for (int i = 0; i < tda.getFlight(player).size(); i++) {
                     if (tda.getFlightCard(player, i).getType() == 0) {
                         numGoodDragons++;
                     }
@@ -222,9 +225,9 @@ public class TdaLocalGame extends LocalGame {
 
             //Pay 1 gold to the stakes. Draw a card for each player with a flight stronger than yours
             case "The Fool":
-                tda.setHoard(player,playerHoard-1);
-                tda.setStakes(stakes+1);
                 if (strongestFlight() != player) {
+                    tda.setStakes(stakes+1);
+                    tda.setHoard(player,playerHoard-1);
                     tda.drawCard(player);
                 }
                 break;
@@ -247,19 +250,17 @@ public class TdaLocalGame extends LocalGame {
 
             //Pay 1 gold to the stakes. Discard a weaker dragon from any flight
             case "The DragonSlayer":
-                //set the strength to the DragonSlayers strength and find the weakest card
-                int theSlayerStrength = 8;
-                boolean weakestCardFound = false;
-                int index = 0;
+
+                //by default the weakest card is the first card in the flight
+                int weakest = tda.getFlight(opponent).get(0).getStrength();
                 tda.setHoard(player,playerHoard-1);
                 tda.setStakes(stakes+1);
-                while (!weakestCardFound) {
-                    if (tda.getFlightCard(opponent, index).getStrength() < theSlayerStrength) {
-                        weakestCardFound = true;
+                int index = 0;
+                for(int i = 0; i < tda.getFlight(opponent).size();i++){
+                    if(tda.getFlight(opponent).get(i).getStrength()<weakest){
+                        break;
                     }
-                    else {
-                        index++;
-                    }
+                    index++;
                 }
                 discardCard(opponent, index, 2);
                 break;
@@ -271,7 +272,7 @@ public class TdaLocalGame extends LocalGame {
             //The opponent with the strongest flight pays you 1 gold. Take a random card from that player's hand.
             case "Red Dragon":
                 //random card from opponents hand
-                int indexOfCard = rand.nextInt(tda.getHandSize(opponent));
+                int indexOfCard = rand.nextInt(tda.getHands()[opponent].size());
 
                 //if the strength of the opponents flight is bigger than the current player do the power
                 if (strongestFlight() != player) {
@@ -283,7 +284,7 @@ public class TdaLocalGame extends LocalGame {
 
             //Each player with at least one good dragon in their flight draws a card
             case "Silver Dragon":
-                for (int i = 0; i <  tda.getFlightSize(player); i++) {
+                for (int i = 0; i <  tda.getFlight(player).size(); i++) {
                     if (tda.getFlightCard(player, i).getType() == 0) {
                         Card c = new Card(tda.randomCard());
                         c.setPlacement(c.HAND);
@@ -291,7 +292,7 @@ public class TdaLocalGame extends LocalGame {
                     }
                 }
                 //check the opponents flight for a good dragon
-                for (int j = 0; j <  tda.getFlightSize(opponent); j++) {
+                for (int j = 0; j < tda.getFlight(opponent).size(); j++) {
                     if (tda.getFlightCard(opponent, j).getType() == 0) {
                         tda.drawCard(opponent);
                     }
@@ -301,7 +302,7 @@ public class TdaLocalGame extends LocalGame {
             case "White Dragon":
                 boolean mortalFound = false;
                 //check the players flight for mortals
-                for (int i = 0; i < tda.getFlightSize(player); i++) {
+                for (int i = 0; i < tda.getFlight(player).size(); i++) {
                     if (tda.getFlightCard(player, i).getType() == 2) {
                         tda.setHoard(tda.getCurrentPlayer(), playerHoard + 3);
                         tda.setStakes(stakes - 3);
@@ -310,7 +311,7 @@ public class TdaLocalGame extends LocalGame {
                 }
                 if (mortalFound != true) {
                     //check the opponents flight for mortals
-                    for (int j = 0; j < tda.getFlightSize(opponent); j++) {
+                    for (int j = 0; j < tda.getFlight(opponent).size(); j++) {
                         if (tda.getFlightCard(opponent, j).getType() == 2) {
                             tda.setHoard(tda.getCurrentPlayer(), playerHoard + 3);
                             tda.setStakes(stakes - 3);
@@ -331,30 +332,14 @@ public class TdaLocalGame extends LocalGame {
      */
     protected void discardCard(int player, int index, int placement){
 
-        int handSize = tda.getHandSize(player);
         int opponent = Math.abs(player-1);
-        int opponentHandSize = tda.getHandSize(opponent);
-        Card c = new Card(tda.getHandCard(player,index));
-        int emptySlot = 0;
 
+        Card c = new Card();
 
-        //checking the flight for an empty spot
-        for(int i = 0; i<3;i++) {
-            if (tda.getFlightCard(player, i).getName() == "") {
-                emptySlot = i;
-                break;
-            }
-        }
-
-
+        //every placement but 2 requires a card from the player's hand to be removed
         if(placement!=2) {
-            if (index < handSize - 1) {
-                for (int i = index; i < handSize - 1; i++) {
-                    tda.setHand(player, i, tda.getHandCard(player, i + 1));
-                }
-            }
-            tda.setHand(player, handSize - 1, new Card());
-            tda.setHandSize(player, tda.getHandSize(player) - 1);
+            c = new Card(tda.getHandCard(player,index));
+            tda.getHands()[player].remove(index);
         }
 
         switch(placement){
@@ -362,26 +347,27 @@ public class TdaLocalGame extends LocalGame {
             //if the card is being discarded to an opponent
             case 0:
                 c.setPlacement(1);
-                tda.setHand(opponent,opponentHandSize,new Card(c));
-                tda.setHandSize(opponent,tda.getHandSize(opponent)+1);
+                tda.getHand(opponent).add(new Card(c));
                 break;
 
             //discarding a card to your flight
             case 1:
                 c.setPlacement(2);
-                tda.setFlight(player,emptySlot,new Card(c));
-                tda.setFlightSize(player,tda.getFlightSize(player)+1);
+                tda.getFlight(player).add(new Card(c));
                 break;
 
             //if the card is being discarded from a flight
             case 2:
-                tda.setFlight(player,index,new Card());
-                tda.setFlightSize(player,tda.getFlightSize(player)-1);
+                tda.getFlight(player).remove(index);
+                tda.getDeck().add(new Card(c));
                 break;
-
             //discarding a card back to the deck
             case 3:
                 tda.getDeck().add(c);
+                break;
+            //card being added to the antePile
+            case 4:
+                tda.getAntePile().add(c);
                 break;
         }
     }
@@ -396,10 +382,11 @@ public class TdaLocalGame extends LocalGame {
         int player = tda.getCurrentPlayer();
         int opponent = Math.abs(player-1);
 
-        int playerFlightSize = tda.getFlightSize(player);
-        int oppFlightSize = tda.getFlightSize(opponent);
+        int playerFlightSize = tda.getFlight(player).size();
+        int oppFlightSize = tda.getFlight(opponent).size();
 
-        Card[][] flights = tda.getFlights();
+        //all flights
+        ArrayList<Card>[] flights = tda.getFlights();
 
         //players flight strength
         int playerStrength = 0;
@@ -428,22 +415,8 @@ public class TdaLocalGame extends LocalGame {
 
     }
 
-    public void clearFlights(){
-
-       //clearing
-        for(int i = 0; i<2; i++){
-            for(int j = 0; j<3;j++){
-                discardCard(i,j,2);
-            }
-        }
-
-        //clearing the ante pile
-        for(int i = 0; i<4; i++){
-            tda.setAnteCard(i,new Card());
-        }
-    }
-
     protected void gambitWinner(){
+
         //deciding the winner of the Gambit
         int stakes = tda.getCurrentStakes();
         int gambitWinner = strongestFlight();
@@ -456,6 +429,7 @@ public class TdaLocalGame extends LocalGame {
         tda.setChoice1(tda.getChoice(3,0));
         tda.setChoice2(tda.getChoice(3,1));
         tda.setGamePhase(TdaGameState.END_GAMBIT);
+
     }
 
     /**
@@ -474,24 +448,21 @@ public class TdaLocalGame extends LocalGame {
 
             int player = tda.getCurrentPlayer();
             int hoard = tda.getHoard(player);
-            int handSize = tda.getHandSize(player);
 
             //draw top card add it to hand
             Card c = new Card(tda.randomCard());
             c.setPlacement(c.HAND);
-            tda.setHand(player,handSize,new Card(c));
+            tda.getHand(player).add(new Card(c));
 
-            tda.setHandSize(player,handSize+1);
             int strength = c.getStrength();
 
             //add cards until player has 4 cards
             for(int i = 1; i<3; i++){
                 Card d = new Card(tda.randomCard());
                 d.setPlacement(c.HAND);
-                tda.setHand(player,i+1,new Card(d));
-                tda.setHandSize(player,i+2);
-
+                tda.getHand(player).add(new Card(d));
             }
+
             tda.setHoard(player,hoard-strength);
             return true;
         }
@@ -532,7 +503,7 @@ public class TdaLocalGame extends LocalGame {
 
                 //if we are at the end of an ante
                 if(tda.getGamePhase()==TdaGameState.ANTE) {
-                    if (tda.getAnteCard(0).getName() != "") {
+                    if (tda.getAntePile().size()>=1) {
                         if (currentPlayer == 1) {
                             playCard(1, 0, c);
                             tda.setCurrentPlayer(0);
@@ -552,22 +523,25 @@ public class TdaLocalGame extends LocalGame {
                     playCard(1,0,c);
 
                     //if cards with choices are played
-                    if(c.getName().equals("Green Dragon")&&tda.getGamePhase()==tda.CHOICE){
+                    if(c.getName().equals("Green Dragon")&&tda.getGamePhase()==tda.ROUND){
                         tda.setCurrentPlayer(opponent);
                         tda.setRound(round+1);
                         return true;
                     }
+
                     if(c.getName().equals("Blue Dragon")&&tda.getGamePhase()==tda.CHOICE){
                         sendAction(new TdaChoiceAction(players[1],0));
+                        tda.setCurrentPlayer(opponent);
+                        return true;
                     }
 
                     //if the computer only has one card left in their hand
-                    if(tda.getHandSize(currentPlayer)==1){
+                    if(tda.getHand(currentPlayer).size()==1){
                         sendAction(new TdaBuyAction(players[currentPlayer]));
                     }
 
-                    if(tda.getFlightSize(currentPlayer)==3){
-                        if(tda.getFlightSize(opponent)==3){
+                    if(tda.getFlight(currentPlayer).size()==3){
+                        if(tda.getFlight(opponent).size()==3){
                             gambitWinner();
                         }
                     }
@@ -591,13 +565,13 @@ public class TdaLocalGame extends LocalGame {
 
                     //if the player only has 1 card after playing a card, they must buy 4 cards
                     //from the deck
-                    if(tda.getHandSize(currentPlayer)==1){
+                    if(tda.getHand(currentPlayer).size()==1){
                         sendAction(new TdaBuyAction(players[currentPlayer]));
                     }
 
                     //checks if the gambit is over
-                    if(tda.getFlightSize(currentPlayer)==3){
-                        if(tda.getFlightSize(opponent)==3){
+                    if(tda.getFlight(currentPlayer).size()==3){
+                        if(tda.getFlight(opponent).size()==3){
                             gambitWinner();
                             sendUpdatedStateTo(players[0]);
                             return true;
@@ -734,14 +708,15 @@ public class TdaLocalGame extends LocalGame {
                             return true;
                         }
                         else if(tda.getGamePhase()==tda.END_GAMBIT) {
-                            //clear flights
-                            clearFlights();
+
+                            //clear the flights
+                            tda.clearBoard();
 
                             //each player draws 2 cards at the end of a gambit
 
                             //checks if hand is full (at 10)
-                            if(tda.getHandSize(player)>=8) {
-                                while (tda.getHandSize(player) < 10) {
+                            if(tda.getHand(player).size()>=8) {
+                                while (tda.getHand(player).size() < 10) {
                                         tda.drawCard(player);
                                 }
                             }
@@ -750,7 +725,16 @@ public class TdaLocalGame extends LocalGame {
                                     tda.drawCard(player);
                                 }
                             }
-                            sendUpdatedStateTo(players[0]);
+                            if(tda.getHand(opponent).size()>=8) {
+                                while (tda.getHand(opponent).size() < 10) {
+                                    tda.drawCard(opponent);
+                                }
+                            }
+                            else{
+                                for (int i = 0; i < 2; i++) {
+                                    tda.drawCard(opponent);
+                                }
+                            }
                             //game goes back to an ante after a gambit ends
                             tda.setGamePhase(tda.ANTE);
                             return true;
@@ -759,7 +743,7 @@ public class TdaLocalGame extends LocalGame {
                 }
 
                 //after a choice is made we return to a round phase
-                if(tda.getFlightSize(player)==3){
+                if(tda.getFlight(player).size()==3){
                     tda.setGamePhase(tda.END_GAMBIT);
                 }
                 else{
@@ -769,5 +753,9 @@ public class TdaLocalGame extends LocalGame {
             }
         }
         return false;
+    }
+
+    @Override
+    public void run() {
     }
 }

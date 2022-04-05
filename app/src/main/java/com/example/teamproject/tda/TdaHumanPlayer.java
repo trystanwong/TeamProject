@@ -86,15 +86,15 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
             tda = (TdaGameState)info;//current game state
 
             //updating all hand sizes
-            for (int i = 0; i < 3; i++) {
-                handSizes[i].setText(Integer.toString(tda.getHandSize(i+1)));
-            }
+            handSizes[0].setText(Integer.toString(tda.getHand(1).size()));
 
             //updating all hoard values
             for (int i = 0; i < 4; i++) {
                 String currentHoard = Integer.toString(tda.getHoard(i));
                 hoards[i].setText(currentHoard);
             }
+
+            deckSize.setText(Integer.toString(tda.getDeck().size()));
 
             //stakes
             stakes.setText(Integer.toString(tda.getCurrentStakes()));
@@ -105,28 +105,51 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
 
 
             //player has to buy cards if they only have 1 card left in their hand
-            if(tda.getCurrentPlayer()==playerNum&&tda.getHandSize(playerNum)<=1){
+            if(tda.getCurrentPlayer()==playerNum&&tda.getHand(playerNum).size()<=1){
                 super.game.sendAction(new TdaBuyAction(this));
             }
 
+
             //adding all of the flight cards and ante cards to the game.
             for(int i = 0; i < 4; i++){
-                String anteName = tda.getAnteCard(i).getName();
-                setImage(antePile[i], anteName);
                 antePile[i].setOnTouchListener(this);
-                for(int j = 0; j < 3;j++){
-                    String name = tda.getFlightCard(i,j).getName();
-                    setImage(flights[i][j],name);
-                    flights[i][j].setOnTouchListener(this);
+                    for (int j = 0; j < tda.getFlight(i).size(); j++) {
+                        String name = tda.getFlightCard(i, j).getName();
+                        setImage(flights[i][j], name);
+                        flights[i][j].setOnTouchListener(this);
+                    }
+
+            }
+            for(int i = 0; i < 4; i++) {
+                for(int k = tda.getFlight(i).size(); k < 3; k++){
+                    flights[i][k].setImageResource(R.drawable.cardback);
                 }
             }
 
+
+
+
             //setting the images in the player's hand.
-            for(int i = 0; i < 10; i++){
+            for(int i = 0; i < tda.getHand(playerNum).size(); i++){
                 String name = tda.getHandCard(0,i).getName();
                 setImage(hand[i],name);
                 hand[i].setOnTouchListener(this);
             }
+
+            for(int i = tda.getHand(playerNum).size(); i < 10; i++){
+                hand[i].setImageResource(R.drawable.cardback);
+            }
+
+            for(int i = tda.getAntePile().size(); i < 4; i++){
+                antePile[i].setImageResource(R.drawable.cardback);
+            }
+            for (int i = 0; i < tda.getAntePile().size(); i++) {
+                String anteName = tda.getAnteCard(i).getName();
+                setImage(antePile[i], anteName);
+            }
+
+
+
 
             //If its this human player's turn, and the card is playable,
             // the play button will be green. gray otherwise
@@ -168,13 +191,14 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
 
                 //if the player is making a choice
                 case 3:
+                    if(tda.getCurrentPlayer()==playerNum) {
+                        //choice text box becomes visible if its your turn to choose an option
+                        tda.setGameText("Choose One:");
+                        gameText.setText("Choose One:");
+                        for (View v : choiceTextBox) {
+                            v.setVisibility(View.VISIBLE);
 
-                    //choice text box becomes visible if its your turn to choose an option
-                    tda.setGameText("Choose One:");
-                    gameText.setText("Choose One:");
-                    for(View v : choiceTextBox) {
-                        v.setVisibility(View.VISIBLE);
-
+                        }
                     }
                     break;
 
@@ -265,6 +289,9 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
         handSizes[1] = activity.findViewById(R.id.handSize1);
         handSizes[0] = activity.findViewById(R.id.handSize2);
         handSizes[2] = activity.findViewById(R.id.handSize3);
+
+        //deck size
+        deckSize = activity.findViewById(R.id.remainingCardsValue);
 
         //all player hoards
         hoards = new TextView[4];
@@ -460,7 +487,7 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
         }
 
         //checking if any flight or ante cards are selected
-         for(int i = 0; i<4;i++){
+         for(int i = 0; i<tda.getAntePile().size();i++){
 
              //ante card selected
              if(view == antePile[i]){
@@ -512,7 +539,7 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnClickListe
          }
 
          //if a card in your hand is selected
-         for(int i = 0; i< tda.getHandSize(0); i++){
+         for(int i = 0; i< tda.getHand(0).size(); i++){
 
              if(view == hand[i]) {
 
