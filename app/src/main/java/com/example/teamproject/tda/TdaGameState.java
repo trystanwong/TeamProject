@@ -178,12 +178,12 @@ public class TdaGameState extends GameState{
         this.roundLeader = tdaGameStateCopy.roundLeader;
         this.canPlay = tdaGameStateCopy.canPlay;
         this.hoards = tdaGameStateCopy.hoards;
-        names = new String[4];
-        names = tdaGameStateCopy.names;
-        choices = new String[4][2];
-        choices = tdaGameStateCopy.choices;
-        choice1 = tdaGameStateCopy.choice1;
-        choice2 = tdaGameStateCopy.choice2;
+        this.names = new String[4];
+        this.names = tdaGameStateCopy.names;
+        this.choices = new String[4][2];
+        this.choices = tdaGameStateCopy.choices;
+        this.choice1 = tdaGameStateCopy.choice1;
+        this.choice2 = tdaGameStateCopy.choice2;
         this.gameText = tdaGameStateCopy.gameText;
         this.currentStakes = tdaGameStateCopy.currentStakes;
 
@@ -194,12 +194,12 @@ public class TdaGameState extends GameState{
         }
 
         //all card arrays
-        flights = new Card[4][3];
-        hands = new Card[4][10];
-        antePile = new Card[4];
-        selectedCard = new Card[4];
-        handSizes = tdaGameStateCopy.handSizes;
-        flightSizes = tdaGameStateCopy.flightSizes;
+        this.flights = new Card[4][3];
+        this.hands = new Card[4][10];
+        this.antePile = new Card[4];
+        this.selectedCard = new Card[4];
+        this.handSizes = tdaGameStateCopy.handSizes;
+        this.flightSizes = tdaGameStateCopy.flightSizes;
 
         //copying all ante, hand, and flight cards
         for(int i = 0; i < 4; i++){
@@ -629,6 +629,16 @@ public class TdaGameState extends GameState{
     //returns all flights
     public Card[][] getFlights(){
         return flights;
+    }
+
+    //set the currentRound
+    public void setRound(int r){
+        round = r;
+    }
+
+    //get the Round
+    public int getRound(){
+        return round;
     }
 }
 

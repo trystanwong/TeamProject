@@ -14,6 +14,10 @@ public class Card{
 
     //instance variables
 
+    //coordinates of card
+    private int x;
+    private int y;
+
     private String name;//name of the card
     private String power;//text found on card
     private int strength;//card strength (1-13)
