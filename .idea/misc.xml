@@ -5,8 +5,11 @@
       <map>
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.3103448275862069" />
         <entry key="app/src/main/res/layout/game_config_main.xml" value="0.1125" />
+        <entry key="app/src/main/res/layout/game_config_tabhost.xml" value="0.18727678791126726" />
+        <entry key="app/src/main/res/layout/game_local_tab.xml" value="0.17722222222222223" />
         <entry key="app/src/main/res/layout/game_player_list_row.xml" value="0.1125" />
-        <entry key="app/src/main/res/menu/game_main.xml" value="0.1125" />
+        <entry key="app/src/main/res/menu/game_main.xml" value="0.25" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.1" />
       </map>
     </option>
   </component>

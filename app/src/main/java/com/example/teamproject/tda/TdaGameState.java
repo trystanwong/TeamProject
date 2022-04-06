@@ -24,6 +24,7 @@ public class TdaGameState extends GameState{
     private int gamePhase; //what phase of the game we are in
     private int numCardsInDeck; //cards remaining in the deck
     private ArrayList<Card> deck; //current stack of deck
+    private ArrayList<Card> discardPile; //current stack of deck
     private String gameText; //game text to tell the user what to do.
     private boolean canPlay; //can the selected card be played;
 
@@ -45,15 +46,13 @@ public class TdaGameState extends GameState{
     private int selectedCardIndex[]; //index of the currently selected card
 
     //all player flights
-    private Card[][] flights;
-    private int[] flightSizes;
+    private ArrayList<Card>[] flights;
 
     //all player hands
-    private Card[][] hands;
-    private int[] handSizes;
+    private ArrayList<Card>[] hands;
 
     //Ante Pile
-    private Card[] antePile;
+    private ArrayList<Card> antePile;
 
     //all player hoards and current stakes for the current gambit
     private int currentStakes;
@@ -102,13 +101,6 @@ public class TdaGameState extends GameState{
         choices[3][0] = "OK";
         choices[3][1] = "";
 
-
-        //setting up the id of each player (placeholder for player class)
-        id = new int[4];
-        for(int i = 0; i<4; i++){
-            id[i] = i;
-        }
-
         //there is no current player or round leader in the beginning phase of the game
         //its decided in the ante phase but it'll default to player1
         currentPlayer = 0;
@@ -118,6 +110,7 @@ public class TdaGameState extends GameState{
         numCardsInDeck = 70;
         Card c = new Card();
         deck = new ArrayList<>();
+        discardPile = new ArrayList<>();
         deck = c.buildDeck();
 
         //initializing all of the arrays found in the game state
@@ -127,41 +120,25 @@ public class TdaGameState extends GameState{
         selectedCardIndex = new int[2];
 
         //initializing all card arrays
-        flights = new Card[4][3];
-        flightSizes = new int[4];
-        hands = new Card[4][10];
-        handSizes = new int[4];
+        flights = new ArrayList[4];
+        hands = new ArrayList[4];
         hoards = new int[4];
-        antePile = new Card[4];
-
-        //setting all hands and flights to blank cards and setting all hoards to 50;
+        antePile = new ArrayList<>();
         for(int i = 0; i < 4; i++){
             hoards[i] = 50;
-            antePile[i] = new Card();
-            for(int j = 0; j<3;j++){
-                flights[i][j]=new Card();
-                flights[i][j].setPlacement(Card.FLIGHT);
-            }
-            for(int k = 0; k<10;k++){
-                hands[i][k]=new Card();
-            }
-            selectedCard[i] = new Card(hands[i][0]);
+            hands[i] = new ArrayList<>();
+            flights[i] = new ArrayList<>();
         }
 
-        //setting flight sizes and player's starting hands
+        //initializing each players starting hand with 6 random cards
         for(int i = 0; i<4; i++) {
-
-            //no cards in the flight at the beginning of the game
-            flightSizes[i] = 0;
-
-            //adding 6 random cards to each players hand using the randomCard function
-            //this is the starting hand of each player
             for (int j = 0; j < 6; j++) {
                 Card newHand = randomCard();
                 newHand.setPlacement(Card.HAND);
-                hands[i][j] = newHand;
-                handSizes[i]++;
+                hands[i].add(newHand);
             }
+            //each players "selected" card is defaulted to the first card in their hand (for A.I)
+            selectedCard[i] = hands[i].get(0);
         }
     }
 
@@ -193,25 +170,39 @@ public class TdaGameState extends GameState{
             this.deck.add(new Card(d));
         }
 
+        //copying the discard pile
+        discardPile = new ArrayList<>();
+        for(Card d : tdaGameStateCopy.discardPile){
+            this.discardPile.add(new Card(d));
+        }
+
         //all card arrays
-        this.flights = new Card[4][3];
-        this.hands = new Card[4][10];
-        this.antePile = new Card[4];
+        this.flights = new ArrayList[4];
+        this.hands = new ArrayList[4];
+        this.antePile = new ArrayList<>();
         this.selectedCard = new Card[4];
-        this.handSizes = tdaGameStateCopy.handSizes;
-        this.flightSizes = tdaGameStateCopy.flightSizes;
+
+        //copying all ante pile cards
+        for(Card c : tdaGameStateCopy.antePile){
+            antePile.add(new Card(c));
+        }
 
         //copying all ante, hand, and flight cards
         for(int i = 0; i < 4; i++){
-            antePile[i] = new Card(tdaGameStateCopy.antePile[i]);
+
             selectedCard[i] = new Card(tdaGameStateCopy.selectedCard[i]);
-            for(int j = 0; j < 10; j++){
-                Card copy  = tdaGameStateCopy.hands[i][j];
-                this.hands[i][j] = new Card(copy);
+            hands[i] = new ArrayList<>();
+            flights[i] = new ArrayList<>();
+
+            //copying all hand cards
+            for(int j = 0; j < tdaGameStateCopy.getHand(i).size(); j++){
+                Card copy  = tdaGameStateCopy.hands[i].get(j);
+                this.hands[i].add(new Card(copy));
             }
-            for(int k = 0; k < 3; k++){
-                Card copy  = tdaGameStateCopy.flights[i][k];
-                this.flights[i][k] = new Card(copy);
+            //copying all flights
+            for(int k = 0; k < tdaGameStateCopy.getFlight(i).size(); k++){
+                Card copy  = tdaGameStateCopy.flights[i].get(k);
+                this.flights[i].add(new Card(copy));
             }
         }
     }
@@ -255,15 +246,6 @@ public class TdaGameState extends GameState{
                 break;
         }
 
-        //printing all player id's (useful for reading who the current player and round leader is
-        sb.append("----------------------------------\n");
-        sb.append("All Player ID's:\n");
-        for(int i = 0; i < 4; i++)
-        {
-            sb.append("Player "+(i+1)+": " + id[i]);
-            sb.append("\n");
-        }
-
         //printing out various info about the current round and gambit
         sb.append("----------------------------------\n");
         sb.append("Current Phase: "+gp+"\n");
@@ -279,22 +261,22 @@ public class TdaGameState extends GameState{
             sb.append("\t\t\t PLAYER "+i+":\n");
             sb.append("Hoard: " + hoards[i] + "\n");
             sb.append("Hand: \n");
-            for(int j = 0; j < 10; j++){
-                Card c = hands[i][j];
+            for(int j = 0; j < hands[i].size(); j++){
+                Card c = hands[i].get(j);
                 if(c == null){
                     sb.append((j+1)+".\t");
                 }
                 else {
-                    sb.append((j + 1) + ".\t" + hands[i][j].toString() + "\n");
+                    sb.append((j + 1) + ".\t" + hands[i].get(j).toString() + "\n");
                 }
             }
             sb.append("Flight: \n");
-            for(int k = 0; k < 3; k++){
-                Card c = flights[i][k];
+            for(int k = 0; k < flights[i].size(); k++){
+                Card c = flights[i].get(k);
                 if(c == null){
                     sb.append((k+1)+".\t");
                 }
-                sb.append((k+1)+".\t"+flights[i][k].toString()+"\n");
+                sb.append((k+1)+".\t"+flights[i].get(k).toString()+"\n");
             }
         }
         sb.append("----------------------------------\n");
@@ -423,14 +405,50 @@ public class TdaGameState extends GameState{
     }
 
     /**
-     * Draws a card from the deck and sets it to the given player's hand
+     * Draws a card from the deck and adds it to the given player's hand
      * @param player - player drawing a card
      */
     public void drawCard(int player) {
+
+        //if the deck is going to be empty after drawing a card
         Card newCard = randomCard();
         newCard.setPlacement(Card.HAND);
-        hands[player][getHandSize(player)] = new Card(newCard);
-        handSizes[player]+=1;
+        hands[player].add(new Card(newCard));
+        if(deck.size()==0){
+            //shuffle the deck if the deck is now empty
+            shuffleDeck();
+        }
+    }
+
+    /**
+     * clear all player flights and the ante pile
+     */
+    public void clearBoard(){
+
+        //clearing flights
+        for(int i = 0; i<2;i++) {
+            for(int j = getFlight(i).size()-1; j>=0;j--){
+                Card c = new Card(getFlight(i).get(j));
+                discardPile.add(c);
+                getFlight(i).remove(j);
+
+            }
+        }
+        //clearing the ante pile
+        for(int i = 1; i>=0; i--){
+            Card c = new Card(getAntePile().get(i));
+            discardPile.add(c);
+            getAntePile().remove(i);
+        }
+    }
+
+    //the deck takes all cards from the discard pile
+    public void shuffleDeck(){
+        for(Card c : discardPile){
+            c.setPlacement(c.DECK);
+            deck.add(new Card(c));
+            discardPile.remove(c);
+        }
     }
 
     /**
@@ -441,12 +459,12 @@ public class TdaGameState extends GameState{
     public int isRoundLeader() {
 
         //defaulted to first ante card
-        int highestStrength = antePile[0].getStrength();
+        int highestStrength = antePile.get(0).getStrength();
         int strongestAntePlayer = 0;
 
         //checks for the strongest ante card
         for (int i = 0; i < 2; i++) {
-            if (antePile[i].getStrength() > highestStrength) {
+            if (antePile.get(i).getStrength() > highestStrength) {
                 strongestAntePlayer = i;
             }
         }
@@ -499,14 +517,6 @@ public class TdaGameState extends GameState{
         return gamePhase;
     }
 
-    //returns the current hand size of a given player
-    public int getHandSize(int index){ return handSizes[index]; }
-
-    //sets the handSize of the given player to a given size
-    public void setHandSize(int index, int size){
-        handSizes[index] = size;
-    }
-
     //sets the given players hoard to the given amount
     public void setHoard(int hoard, int amount){
         hoards[hoard] = amount;
@@ -514,27 +524,41 @@ public class TdaGameState extends GameState{
 
     //returns the card at the given index of a hand
     public Card getHandCard(int id,int index){
-        return hands[id][index];
+        return hands[id].get(index);
     }
 
-    //adds a card to a hand at a given index to the given card
-    public void setHand(int player, int index, Card c){
-        hands[player][index] = c;
+    //returns all hands
+    public ArrayList<Card>[] getHands() {
+        return hands;
+    }
+
+    //returns specific hands
+    public ArrayList<Card> getHand(int index) {
+        return hands[index];
     }
 
     //gets a card in the ante pile
     public Card getAnteCard(int index){
-        return antePile[index];
+        return antePile.get(index);
+    }
+
+    public ArrayList<Card> getAntePile() {
+        return antePile;
     }
 
     //adds a given card to the ante pile
     public void setAnteCard(int index, Card c){
-        antePile[index] = new Card(c);
+        antePile.set(index,new Card(c));
     }
 
     //returns the deck of cards
     public ArrayList<Card> getDeck(){
         return deck;
+    }
+
+    //returns the discard pile
+    public ArrayList<Card> getDiscardPile(){
+        return discardPile;
     }
 
     //sets the stakes of the game
@@ -578,24 +602,19 @@ public class TdaGameState extends GameState{
     //set the index of the currently selected card
     public void setSelectedCardIndex(int player, int index){ selectedCardIndex[player] = index; }
 
-    //get the size of a flight
-    public int getFlightSize(int player){
-        return flightSizes[player];
-    }
-
-    //set the size of a flight
-    public void setFlightSize(int player, int size){
-        flightSizes[player]=size;
-    }
-
     //get a card in a given flight at a given index
     public Card getFlightCard(int flight, int index) {
-        return flights[flight][index];
+        return flights[flight].get(index);
     }
 
-    //add a given card to a flight
-    public void setFlight(int player, int index, Card c){
-        flights[player][index] = new Card(c);
+    //returns the given player's flight
+    public ArrayList<Card> getFlight(int player){
+        return flights[player];
+    }
+
+    //returns all flights
+    public ArrayList<Card>[] getFlights(){
+        return flights;
     }
 
     //getters for a set of choices
@@ -619,16 +638,6 @@ public class TdaGameState extends GameState{
     }
     public void setChoice2(String s){
         choice2 = s;
-    }
-
-    //returns a given player's flight
-    public Card[] getFlight(int index){
-        return flights[index];
-    }
-
-    //returns all flights
-    public Card[][] getFlights(){
-        return flights;
     }
 
     //set the currentRound
