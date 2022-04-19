@@ -321,11 +321,11 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnTouchListe
             for (Card c : tda.getFlights()[0]) {
                 strength1 += c.getStrength();
             }
-            yourFlightStrength.setText("Your Flight " + Integer.toString(strength1));
+            yourFlightStrength.setText("Your Flight Strength: " + Integer.toString(strength1));
             for (Card c : tda.getFlights()[1]) {
                 strength2 += c.getStrength();
             }
-            opponentFlightStrength.setText(Integer.toString(strength2));
+            opponentFlightStrength.setText("Opponent Flight Strength: "+ Integer.toString(strength2));
         }
     }
 
@@ -678,7 +678,7 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnTouchListe
         myName = activity.findViewById(R.id.player0Name);
         opponentName = activity.findViewById(R.id.player2Name);
         yourFlightStrength = activity.findViewById(R.id.flight0Text);
-        opponentFlightStrength = activity.findViewById(R.id.opponentFlightStrengthTV);
+        opponentFlightStrength = activity.findViewById(R.id.flightText1);
 
         //zoomed card
         selected = activity.findViewById(R.id.zoom);

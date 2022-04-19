@@ -513,7 +513,8 @@ public class TdaLocalGame extends LocalGame implements Serializable {
                         //find where the copper dragon has been placed
                         for (Card d: playerFlight) {
                             //if the card is a copper dragon than remove the card from the flight
-                            if (d.getName().equals("Copper Dragon")) {
+                            if (d.getName().equals("Copper Dragon")
+                                    ||d.getName().equals("The Archmage")) {
                                 playerFlight.remove(d);
                             }
                         }
