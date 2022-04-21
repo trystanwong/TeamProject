@@ -85,8 +85,6 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnTouchListe
     //zoomed card
     private ConstraintLayout zoomed;
     private ImageView selected;
-    private TextView strength1;
-    private TextView strength2;
 
     /**
      * constructor
@@ -423,8 +421,6 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnTouchListe
         if(view == ante[0]&&tda.getAnte().size()>=1){
             Card ante = tda.getAnte().get(playerNum);
             setImage(selected,ante.getName(),ante.getStrength());
-            strength2.setText(Integer.toString(ante.getStrength()));
-            strength1.setText(Integer.toString(ante.getStrength()));
             zoomed.setVisibility(View.VISIBLE);
             switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
                 case MotionEvent.ACTION_DOWN:
@@ -450,8 +446,6 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnTouchListe
         else if(view == ante[1]&&tda.getAnte().size()==2){
             Card ante = tda.getAnte().get(opponent);
             setImage(selected,ante.getName(),ante.getStrength());
-            strength2.setText(Integer.toString(ante.getStrength()));
-            strength1.setText(Integer.toString(ante.getStrength()));
             zoomed.setVisibility(View.VISIBLE);
             switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
                 case MotionEvent.ACTION_DOWN:
@@ -486,8 +480,6 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnTouchListe
                     }
 
                     setImage(selected,flight.getName(),flight.getStrength());
-                    strength2.setText(Integer.toString(flight.getStrength()));
-                    strength1.setText(Integer.toString(flight.getStrength()));
                     zoomed.setVisibility(View.VISIBLE);
 
                     switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
@@ -519,8 +511,6 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnTouchListe
 
                 Card hand = playerHand.get(i);
                 setImage(selected,hand.getName(),hand.getStrength());
-                strength2.setText(Integer.toString(hand.getStrength()));
-                strength1.setText(Integer.toString(hand.getStrength()));
 
                 zoomed.setVisibility(View.VISIBLE);
 
@@ -684,9 +674,6 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnTouchListe
         selected = activity.findViewById(R.id.zoom);
         zoomed = activity.findViewById(R.id.zoomlayout);
         selected.setOnTouchListener(this);
-        strength1 = activity.findViewById(R.id.strength);
-        strength2 = activity.findViewById(R.id.strength2);
-
 
         //flight images
         flights = new ImageView[2][3];

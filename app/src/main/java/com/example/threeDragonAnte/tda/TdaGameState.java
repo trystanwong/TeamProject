@@ -199,7 +199,7 @@ public class TdaGameState extends GameState {
         //66644 - gold dragon
         //554676 - arch mage
         //765 - princess
-        Random r = new Random(554676);
+        Random r = new Random();
         int index = r.nextInt(deck.size());
         Card drawn = deck.get(index);
         deck.remove(index);
