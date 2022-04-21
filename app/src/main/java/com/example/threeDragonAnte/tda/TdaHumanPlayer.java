@@ -420,7 +420,7 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnTouchListe
         }
 
         //if an ante is selected
-        if(view == ante[0]&&tda.getAnte().size()==1){
+        if(view == ante[0]&&tda.getAnte().size()>=1){
             Card ante = tda.getAnte().get(playerNum);
             setImage(selected,ante.getName(),ante.getStrength());
             strength2.setText(Integer.toString(ante.getStrength()));
