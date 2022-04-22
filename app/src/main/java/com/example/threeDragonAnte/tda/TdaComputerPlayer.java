@@ -60,7 +60,6 @@ public class TdaComputerPlayer extends GameComputerPlayer {
                         super.game.sendAction(new ChoiceAction(this,0));
                         break;
                     case TdaGameState.DISCARD:
-                        System.out.println("wtf");
                         //dumb A.I chooses the first playable card to discard
                         int index = 0;
                         for(int i = 0; i < tda.getHands()[playerNum].size();i++){

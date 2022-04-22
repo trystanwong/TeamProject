@@ -91,14 +91,13 @@
             android:id="@+id/anteText1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginLeft="5dp"
             android:fontFamily="@font/chela_one"
             android:text="Opponent Ante"
             android:textColor="#FFFFE0"
             android:textSize="25dp"
-            app:layout_constraintEnd_toEndOf="@+id/ante2frame"
-            app:layout_constraintStart_toStartOf="@+id/ante2frame"
-            app:layout_constraintTop_toBottomOf="@+id/ante2frame" />
+            app:layout_constraintStart_toEndOf="@+id/ante2frame"
+            app:layout_constraintTop_toTopOf="@+id/ante2frame" />
 
         <TextView
             android:id="@+id/flightText1"
@@ -186,54 +185,59 @@
 
         <LinearLayout
             android:id="@+id/choiceLayout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="600dp"
+            android:layout_height="80dp"
             android:layout_marginBottom="20dp"
-            android:gravity="center"
-            android:orientation="vertical"
+            android:gravity="center_horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/gameText"
             app:layout_constraintStart_toStartOf="@+id/gameText">
 
             <Button
                 android:id="@+id/choice1"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="0.33"
                 android:background="#FFFFDD"
                 android:fontFamily="@font/germania_one"
                 android:gravity="center"
                 android:padding="2dp"
                 android:text="PLAY"
                 android:textColor="@color/black"
-                android:textSize="24sp" />
+                android:textSize="20sp" />
 
             <Button
                 android:id="@+id/choice2"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="0.33"
                 android:background="#FFFFD9"
                 android:fontFamily="@font/germania_one"
                 android:gravity="center"
                 android:padding="2dp"
                 android:text="Opponent"
                 android:textColor="@color/black"
-                android:textSize="24sp"
+                android:textSize="20sp"
                 android:visibility="gone" />
 
             <Button
                 android:id="@+id/choice3"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="0.33"
                 android:background="#FFFFD9"
                 android:fontFamily="@font/germania_one"
                 android:gravity="center"
                 android:padding="2dp"
                 android:text="Opponent"
                 android:textColor="@color/black"
-                android:textSize="24sp"
+                android:textSize="20sp"
                 android:visibility="gone" />
         </LinearLayout>
 
@@ -245,6 +249,20 @@
         android:layout_height="match_parent"
         android:layout_weight="0.5">
 
+
+        <TextView
+            android:id="@+id/buyCard"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="false"
+            android:layout_marginLeft="570dp"
+            android:layout_marginBottom="299dp"
+            android:fontFamily="@font/chela_one"
+            android:text="Drag a card from the deck to your hand to buy."
+            android:textColor="#FFFFE0"
+            android:textSize="25dp" />
 
         <ImageView
             android:id="@+id/dragDeck2"
@@ -372,10 +390,11 @@
             android:id="@+id/antePileText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
             android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginLeft="20dp"
-            android:layout_marginBottom="594dp"
+            android:layout_centerHorizontal="false"
+            android:layout_marginLeft="450dp"
+            android:layout_marginBottom="564dp"
             android:fontFamily="@font/chela_one"
             android:text="Your Ante"
             android:textColor="#FFFFE0"
@@ -454,41 +473,12 @@
 
             <ImageView
                 android:id="@+id/zoom"
-                android:layout_width="250dp"
-                android:layout_height="435dp"
-                android:layout_marginStart="4dp"
+                android:layout_width="200dp"
+                android:layout_height="350dp"
                 android:visibility="visible"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:srcCompat="@drawable/bahamut13" />
-
-            <TextView
-                android:id="@+id/strength2"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="@color/black"
-                android:fontFamily="@font/germania_one"
-                android:gravity="center"
-                android:text="13"
-                android:textColor="#FFFFE0"
-                android:textSize="34sp"
-                android:visibility="visible"
-                app:layout_constraintBottom_toBottomOf="@+id/zoom"
-                app:layout_constraintEnd_toEndOf="@+id/zoom" />
-
-            <TextView
-                android:id="@+id/strength"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="@color/black"
-                android:fontFamily="@font/germania_one"
-                android:gravity="center"
-                android:text="13"
-                android:textColor="#FFFFE0"
-                android:textSize="34sp"
-                android:visibility="visible"
-                app:layout_constraintStart_toStartOf="@+id/zoom"
-                app:layout_constraintTop_toTopOf="@+id/zoom" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

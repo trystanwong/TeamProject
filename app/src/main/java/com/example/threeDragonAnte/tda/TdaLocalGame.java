@@ -161,7 +161,6 @@ public class TdaLocalGame extends LocalGame implements Serializable {
             else if(tda.getRound()>=3){
                 clearBoard();
                 tda.setPhase(TdaGameState.ANTE);
-                tda.setStakes(0);
                 tda.setCurrentPlayer(0);
                 return true;
             }
@@ -185,7 +184,7 @@ public class TdaLocalGame extends LocalGame implements Serializable {
                     case "Tiamat":
                     case "Green Dragon":
                         //only give them the option if they have cards that they can play
-                        if(tda.getChooseFrom()==2 && choice == 0){
+                        if(tda.getChooseFrom()==2&&choice==0){
                             tda.setChooseFrom(0);
                             tda.setChoosing(false);
                             tda.setGameText("Choose a dragon from your hand with" +
@@ -206,7 +205,7 @@ public class TdaLocalGame extends LocalGame implements Serializable {
                         }
                         break;
                     case "Brass Dragon":
-                        if (tda.getChooseFrom()==2) {
+                        if (tda.getChooseFrom()==2&&choice==0) {
                             tda.setChooseFrom(0);
                             tda.setChoosing(false);
                             tda.setGameText("Choose a dragon from your hand with" +
@@ -390,6 +389,8 @@ public class TdaLocalGame extends LocalGame implements Serializable {
                 //cards that have choices
                 switch(flight.getName()){
                     case "The Princess":
+                        tda.setStakes(stakes+1);
+                        tda.setHoard(player,-1);
                         tda.setGameText("Choose which power to activate first: ");
                         for(int i = 0; i < playerFlight.size();i++){
                             Card p = playerFlight.get(i);
@@ -512,25 +513,32 @@ public class TdaLocalGame extends LocalGame implements Serializable {
                     case "Copper Dragon":
                         Random rand = new Random();
                         //find where the copper dragon has been placed
-                        for (Card d: playerFlight) {
-                            //if the card is a copper dragon than remove the card from the flight
-                            if (d.getName().equals("Copper Dragon")
-                                    ||d.getName().equals("The Archmage")) {
-                                playerFlight.remove(d);
-                            }
-                        }
+                        playerFlight.remove(tda.getRound());
                         //get the card from the deck
                         int i = rand.nextInt(tda.getDeck().size());
                         Card c = tda.getDeck().get(i);
                         //remove the card from the deck
                         tda.getDeck().remove(i);
-                        c.setPlacement(Card.HAND);
-                        tda.getHands()[player].add(c);
+                        c.setPlacement(Card.FLIGHT);
                         int size = tda.getHands()[player].size();
-                        tda.setMoves(tda.getMoves()-1);
-                        //add the card to the flight and activate the power
-                        sendAction(new PlayCardAction(players[player],size-1,Card.FLIGHT));
-                        return true;
+                        tda.getDiscard().add(flight);
+                        tda.getFlights()[player].add(c);
+                        tda.setLast(player,c);
+                        switch(c.getName()){
+                            case "Blue Dragon":
+                                return blueDragon();
+                            case "Green Dragon":
+                                return greenDragon();
+                            case "Brass Dragon":
+                                if(strongestFlight()==opponent) {
+                                    return brassDragon();
+                                }
+                                break;
+                            default:
+                                powers(c.getName());
+                                break;
+                        }
+                        break;
 
                 }
                 return turnHelper();
@@ -569,8 +577,8 @@ public class TdaLocalGame extends LocalGame implements Serializable {
             tda.setGameText("No weaker dragons in your hand, you must:");
             tda.setChoice1("Pay your opponent 5 gold.");
         }
-        tda.setPhase(TdaGameState.CHOICE);
         tda.setDiscarding(true);
+        tda.setPhase(TdaGameState.CHOICE);
         tda.setCurrentPlayer(opponent);
         return true;
     }
@@ -831,15 +839,15 @@ public class TdaLocalGame extends LocalGame implements Serializable {
                 }
                 //if the druid was played, the weakest flight wins
                 if(c.getName().equals("The Druid")){
-                    return Math.abs(winner-1);
+                    winner = Math.abs(winner-1);
                 }
                 //cant win if you have tiamat and a good dragon in your hand
                 if(c.getName().equals("Tiamat")&&good==true){
-                    return Math.abs(i-1);
+                    winner = Math.abs(i-1);
                 }
                 //cant win if you have Bahamut and a bad dragon in your hand
                 if(c.getName().equals("Bahamut")&&bad==true){
-                    return Math.abs(i-1);
+                    winner = Math.abs(i-1);
                 }
             }
         }
