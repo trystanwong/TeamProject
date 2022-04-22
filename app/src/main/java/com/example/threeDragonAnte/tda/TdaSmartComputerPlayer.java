@@ -65,20 +65,16 @@ public class TdaSmartComputerPlayer extends GameComputerPlayer {
 
                     //smart A.I chooses the strongest card in hand in the ANTE phase
                     case TdaGameState.ANTE:
-                        //find the strongest card in the A.Is hand
-                        int strongestCard = 0;
-                        int indexOfCard = 0;
-                        for (Card c: computerHand) {
-                            if (c.getStrength() > strongestCard && c.getType()!=Card.MORTAL ) {
-                                //set the strongest card to the strength found and the index of card
-                                strongestCard = c.getStrength();
-                                indexOfCard = computerHand.indexOf(c);
-                            }
+                        //index or placement of the card in A.Is hand
+                        int indexOfCard;
+                        while (playableCard() == -1) {
+                            tda.drawCard(computer);
+                            playableCard();
                         }
-                        PlayCardAction pca = new PlayCardAction(this,indexOfCard,Card.ANTE);
+                        indexOfCard = playableCard();
+                        PlayCardAction pca = new PlayCardAction(this, indexOfCard, Card.ANTE);
                         super.game.sendAction(pca);
                         break;
-
                         //smart A.I plays a card based on it's situation
                     case TdaGameState.ROUND:
 
@@ -87,7 +83,7 @@ public class TdaSmartComputerPlayer extends GameComputerPlayer {
                         viableMoves.add(pcaDefault);
 
                         //requirements to play a black dragon if the AI has 35 gold or less
-                        if (computerHoard <= 30) {
+                        if (computerHoard <= 35) {
                             if (hasCard("Black Dragon") != -1) {
                                 PlayCardAction pca1 = new PlayCardAction(this, hasCard("Black Dragon"), Card.FLIGHT);
                                 viableMoves.add(pca1);
@@ -242,12 +238,11 @@ public class TdaSmartComputerPlayer extends GameComputerPlayer {
                                 //
                                 if (computerHoard < 30) {
                                     super.game.sendAction(new ChoiceAction(this, 1));
-                                    break;
                                 }
                                 else {
                                     super.game.sendAction(new ChoiceAction(this, 2));
-                                    break;
                                 }
+                                break;
                             }
                         }
 
@@ -256,14 +251,13 @@ public class TdaSmartComputerPlayer extends GameComputerPlayer {
                             //if there are 2 choices available
                             if (tda.getChooseFrom() == 2) {
                                 //
-                                if (computerHoard < 30) {
+                                if (computerHoard < 35) {
                                     super.game.sendAction(new ChoiceAction(this, 1));
-                                    break;
                                 }
                                 else {
                                     super.game.sendAction(new ChoiceAction(this, 2));
-                                    break;
                                 }
+                                break;
                             }
                         }
 
@@ -319,7 +313,7 @@ public class TdaSmartComputerPlayer extends GameComputerPlayer {
      * @param name - name of passed in Card
      * @return an int of the index of where the card is
      */
-    public int hasCard (String name) {
+    public int hasCard(String name) {
         int index = -1;
         for (int i = 0; i < computerHand.size(); i++) {
             if (computerHand.get(i).getName().equals(name)) {
@@ -327,6 +321,44 @@ public class TdaSmartComputerPlayer extends GameComputerPlayer {
             }
         }
         return index;
+    }
+
+    /**
+     * finds a playable card within the A.Is hand within the
+     * ante phase of the game. If there is no playable card than draws a card
+     * @return - an int for the index of where the card is within the A.Is hand
+     */
+    public int playableCard() {
+        //find the strongest card in the A.Is hand
+        int strongestCard = 0;
+        int indexOfCard = -1;
+        for (Card c: computerHand) {
+            //find the strongest card that isn't a mortal or dragon god and has a strength
+            //that is less than the computers hoard
+            if (c.getStrength() > strongestCard && c.getType()!=Card.MORTAL
+                    && c.getName() != "Tiamat" && c.getName() != "Dracolich"
+                        && c.getName() != "Bahamut" && c.getStrength() < computerHoard) {
+                //set the strongest card to the strength found and the index of card
+                strongestCard = c.getStrength();
+                indexOfCard = computerHand.indexOf(c);
+            }
+        }
+        //if no such card exists that is less strength than the hoard than
+        //check hand for a mortal that may be less strength than hoard
+        if (indexOfCard == -1) {
+            for (Card c: computerHand) {
+                //see if there is a mortal that has less strength than the A.Is hoard
+                if (c.getType() == Card.MORTAL && c.getStrength() < computerHoard) {
+                    //set the index of card to where the mortal is
+                    indexOfCard = computerHand.indexOf(c);
+                }
+            }
+        }
+        //if the index of card is still null than try to draw a card that is less strength
+        if (indexOfCard == -1) {
+            tda.drawCard(computer);
+        }
+        return indexOfCard;
     }
 
 }

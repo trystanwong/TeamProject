@@ -161,6 +161,7 @@ public class TdaLocalGame extends LocalGame implements Serializable {
             else if(tda.getRound()>=3){
                 clearBoard();
                 tda.setPhase(TdaGameState.ANTE);
+                tda.setStakes(0);
                 tda.setCurrentPlayer(0);
                 return true;
             }
@@ -184,7 +185,7 @@ public class TdaLocalGame extends LocalGame implements Serializable {
                     case "Tiamat":
                     case "Green Dragon":
                         //only give them the option if they have cards that they can play
-                        if(tda.getChooseFrom()==2){
+                        if(tda.getChooseFrom()==2 && choice == 0){
                             tda.setChooseFrom(0);
                             tda.setChoosing(false);
                             tda.setGameText("Choose a dragon from your hand with" +
