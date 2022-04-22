@@ -7,6 +7,7 @@ import com.example.threeDragonAnte.tda.actions.BuyCardAction;
 import com.example.threeDragonAnte.tda.actions.ChoiceAction;
 import com.example.threeDragonAnte.tda.actions.ConfirmAction;
 import com.example.threeDragonAnte.tda.actions.DiscardCardAction;
+import com.example.threeDragonAnte.tda.actions.ForfeitAction;
 import com.example.threeDragonAnte.tda.actions.PlayCardAction;
 
 import java.io.Serializable;
@@ -54,6 +55,9 @@ public class TdaLocalGame extends LocalGame implements Serializable {
         else if(tda.getHoards()[1]<=0){
             return playerNames[0]+" has won the game!";
         }
+        else if(tda.getPhase()==TdaGameState.FORFEIT){
+            return playerNames[tda.getCurrentPlayer()]+" has forfeited the game!";
+        }
         return null;
     }
 
@@ -68,6 +72,13 @@ public class TdaLocalGame extends LocalGame implements Serializable {
         ArrayList<Card> opFlight = tda.getFlights()[opponent];
         ArrayList<Card> playerFlight = tda.getFlights()[player];
         ArrayList<Card> antePile = tda.getAnte();
+
+
+        //if the player is forfeiting
+        if(action instanceof ForfeitAction){
+            tda.setPhase(TdaGameState.FORFEIT);
+            return true;
+        }
 
         //if the player tries to buy a card
         if(action instanceof BuyCardAction){

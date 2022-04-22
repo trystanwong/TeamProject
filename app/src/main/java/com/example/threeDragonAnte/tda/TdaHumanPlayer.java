@@ -29,6 +29,7 @@ import com.example.threeDragonAnte.tda.actions.BuyCardAction;
 import com.example.threeDragonAnte.tda.actions.ChoiceAction;
 import com.example.threeDragonAnte.tda.actions.ConfirmAction;
 import com.example.threeDragonAnte.tda.actions.DiscardCardAction;
+import com.example.threeDragonAnte.tda.actions.ForfeitAction;
 import com.example.threeDragonAnte.tda.actions.PlayCardAction;
 
 import java.util.ArrayList;
@@ -73,6 +74,7 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnTouchListe
     private Button choice1;
     private Button choice2;
     private Button choice3;
+    private Button forfeit;
 
     //card lists
     private ImageView[] hand;
@@ -332,6 +334,12 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnTouchListe
     public void onClick(View view) {
         //noise when a button is pressed
         confirm.start();
+
+        //if the player decides to forfeit.
+        if(view==forfeit){
+            super.game.sendAction(new ForfeitAction(this));
+        }
+
         //when the player makes a choice available to them
         switch(tda.getPhase()){
             case CHOICE:
@@ -401,7 +409,6 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnTouchListe
                     original.bottomMargin = (int)(z*409);
                     view.setLayoutParams(original);
                     break;
-
 
                 case MotionEvent.ACTION_MOVE:
 
@@ -650,6 +657,10 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnTouchListe
         choices[0] = choice1;
         choices[1] = choice2;
         choices[2] = choice3;
+
+        //forfeit button
+        forfeit = activity.findViewById(R.id.forfeitButton);
+        forfeit.setOnClickListener(this);
 
         //dragged deck card
         drag = activity.findViewById(R.id.dragDeck);
@@ -970,6 +981,9 @@ public class TdaHumanPlayer extends GameHumanPlayer implements View.OnTouchListe
         }
     }
 
+    /**
+     * organizing the cards in your hand based on the amount of cards you have. (fanning it out)
+     */
     public void cardOrientation(){
 
         float d = myActivity.getResources().getDisplayMetrics().density;
